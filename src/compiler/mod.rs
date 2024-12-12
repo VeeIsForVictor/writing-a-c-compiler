@@ -6,6 +6,13 @@ pub mod lexer {
     };
 
     #[derive(Debug)]
+    enum CommentToken {
+        LineComment,
+        BlockComment,
+        PendingComment,
+    }
+
+    #[derive(Debug)]
     enum SymbolToken {
         OpenParen,
         CloseParen,
@@ -14,6 +21,7 @@ pub mod lexer {
         Semicolon,
         Quote,
         Whitespace,
+        CommentSymbol,
     }
 
     #[derive(Debug)]
@@ -29,6 +37,7 @@ pub mod lexer {
         Constant(String),
         Keyword(KeywordToken),
         Symbol(SymbolToken),
+        Comment(CommentToken),
     }
 
     #[derive(Debug)]
@@ -43,6 +52,10 @@ pub mod lexer {
         Done {
             remaining_chars: Chars<'a>,
             token: Token,
+        },
+        HandlingComment {
+            remaining_chars: Chars<'a>,
+            comment_token: Token,
         },
         Exit,
     }
@@ -104,9 +117,15 @@ pub mod lexer {
                 } => match remaining_chars.next() {
                     None => Exit,
                     Some(char) => match check_for_symbol(char) {
-                        Some(symbol) => Done {
-                            remaining_chars,
-                            token: Symbol(symbol),
+                        Some(symbol) => match symbol {
+                            SymbolToken::CommentSymbol => HandlingComment {
+                                remaining_chars: remaining_chars,
+                                comment_token: Token::Comment(CommentToken::PendingComment),
+                            },
+                            _ => Done {
+                                remaining_chars,
+                                token: Symbol(symbol),
+                            },
                         },
                         None => Building {
                             remaining_chars,
