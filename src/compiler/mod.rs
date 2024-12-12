@@ -69,6 +69,7 @@ pub mod lexer {
             '}' => Some(CloseBrace),
             ';' => Some(Semicolon),
             '\"' => Some(Quote),
+            '/' => Some(CommentSymbol),
             '\n' | ' ' | '\t' => Some(Whitespace),
             _ => None,
         }
