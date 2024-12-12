@@ -88,14 +88,11 @@ pub mod lexer {
 
     fn match_identifier_or_constant(value: String) -> Result<Token, Error> {
         // catching the weird inclusion of @ in [a-zA-Z_]
-        if value.chars().next().unwrap() == '@' {
-            return Err(Error::new(ErrorKind::Other, format!("{value} contains @")));
-        }
-        let identifier: Regex = Regex::new(r"[a-zA-Z_]\w*\b").unwrap();
+        let identifier: Regex = Regex::new(r"^[a-zA-Z_]\w*\b$").unwrap();
         if identifier.is_match(&value) {
             return Ok(Token::Identifier(value));
         }
-        let constant: Regex = Regex::new(r"[0-9]+\b").unwrap();
+        let constant: Regex = Regex::new(r"^[0-9]+\b$").unwrap();
         if constant.is_match(&value) {
             return Ok(Token::Constant(value));
         }
