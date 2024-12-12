@@ -55,7 +55,7 @@ pub mod lexer {
         },
         HandlingComment {
             remaining_chars: Chars<'a>,
-            comment_token: Token,
+            comment_value: CommentToken,
         },
         Exit,
     }
@@ -120,7 +120,7 @@ pub mod lexer {
                         Some(symbol) => match symbol {
                             SymbolToken::CommentSymbol => HandlingComment {
                                 remaining_chars: remaining_chars,
-                                comment_token: Token::Comment(CommentToken::PendingComment),
+                                comment_value: CommentToken::PendingComment,
                             },
                             _ => Done {
                                 remaining_chars,
@@ -132,6 +132,68 @@ pub mod lexer {
                             current_value: char.to_string(),
                         },
                     },
+                },
+
+                HandlingComment {
+                    mut remaining_chars,
+                    comment_value: comment_token,
+                } => match comment_token {
+                    CommentToken::PendingComment => match remaining_chars.next() {
+                        Some(char) => {
+                            if char == '/' {
+                                HandlingComment {
+                                    remaining_chars,
+                                    comment_value: CommentToken::LineComment,
+                                }
+                            } else if char == '*' {
+                                HandlingComment {
+                                    remaining_chars,
+                                    comment_value: CommentToken::BlockComment,
+                                }
+                            } else {
+                                panic!("Impossible comment value");
+                            }
+                        }
+                        None => {
+                            panic!("Unexpected EOF")
+                        }
+                    },
+                    CommentToken::LineComment => match remaining_chars.next() {
+                        Some(char) => {
+                            if char == '\n' {
+                                Done {
+                                    remaining_chars,
+                                    token: Comment(CommentToken::LineComment),
+                                }
+                            } else {
+                                HandlingComment {
+                                    remaining_chars,
+                                    comment_value: CommentToken::LineComment,
+                                }
+                            }
+                        }
+                        None => {
+                            panic!("Unexpected EOF")
+                        }
+                    },
+                    CommentToken::BlockComment => {
+                        match remaining_chars.next().expect("Unexpected EOF") {
+                            '*' => match remaining_chars.next().expect("Unexpected EOF") {
+                                '/' => Done {
+                                    remaining_chars,
+                                    token: Comment(CommentToken::BlockComment),
+                                },
+                                _ => HandlingComment {
+                                    remaining_chars,
+                                    comment_value: CommentToken::BlockComment,
+                                },
+                            },
+                            _ => HandlingComment {
+                                remaining_chars,
+                                comment_value: CommentToken::BlockComment,
+                            },
+                        }
+                    }
                 },
 
                 Building {
