@@ -52,7 +52,7 @@ fn main() {
         Err(_) => graceful_exit(10),
     };
 
-    if args.lex || args.parse || args.codegen {
+    if !(args.lex || args.parse || args.codegen) {
         // call assembler and linker
         match assemble_and_link(&args) {
             Ok(_) => (),

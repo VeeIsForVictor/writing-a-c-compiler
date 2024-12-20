@@ -248,3 +248,21 @@ pub mod lexer {
         return consume(chars, vec);
     }
 }
+
+pub mod parser {
+    enum ExpressionNode {
+        Constant(usize),
+    }
+
+    enum StatementNode {
+        Return(ExpressionNode),
+    }
+
+    enum FunctionDefinitionNode {
+        Function(String, StatementNode),
+    }
+
+    enum ProgramNode {
+        Program(FunctionDefinitionNode),
+    }
+}
