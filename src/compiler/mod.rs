@@ -6,7 +6,7 @@ pub mod lexer {
     };
 
     #[derive(Debug)]
-    enum CommentToken {
+    pub enum CommentToken {
         LineComment,
         BlockComment,
         PendingComment,
@@ -250,8 +250,6 @@ pub mod lexer {
 }
 
 pub mod parser {
-    use std::option::Iter;
-
     use crate::compiler::lexer::{KeywordToken, SymbolToken};
 
     use super::lexer::Token;
@@ -272,7 +270,7 @@ pub mod parser {
         Program(FunctionDefinitionNode),
     }
 
-    fn parse_expression(tokens: &mut Iter<Token>) -> ExpressionNode {
+    fn parse_expression<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ExpressionNode {
         // match <int>
         let constant_token = tokens.next().unwrap().to_owned();
         assert!(matches!(constant_token, Token::Constant(_)));
@@ -285,7 +283,7 @@ pub mod parser {
         }
     }
 
-    fn parse_statement(tokens: &mut Iter<Token>) -> StatementNode {
+    fn parse_statement<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> StatementNode {
         // match "return"
         assert!(matches!(
             tokens.next().unwrap().to_owned(),
@@ -304,7 +302,7 @@ pub mod parser {
         return StatementNode::Return(expression);
     }
 
-    fn parse_function(tokens: &mut Iter<Token>) -> FunctionDefinitionNode {
+    fn parse_function<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> FunctionDefinitionNode {
         // match "int"
         assert!(matches!(
             tokens.next().unwrap().to_owned(),
@@ -355,7 +353,7 @@ pub mod parser {
         }
     }
 
-    pub fn parse_program(tokens: &mut Iter<Token>) -> ProgramNode {
+    pub fn parse_program<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ProgramNode {
         let child = parse_function(tokens);
         return ProgramNode::Program(child);
     }
