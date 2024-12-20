@@ -111,9 +111,9 @@ fn compile(args: &Args) -> Result<String, Error> {
     }
 
     let tokens = lex(code);
-    eprintln!("{:?}", tokens);
 
     if args.lex {
+        println!("Tokens lexed: {:?}", tokens);
         return Ok("Lexing only complete!".to_string());
     }
 
@@ -131,9 +131,10 @@ fn compile(args: &Args) -> Result<String, Error> {
         .iter()
         .filter(|token| is_not_comment_or_whitespace(token));
 
-    let _syntax_tree = parse_program(&mut tokens_to_parse);
+    let syntax_tree = parse_program(&mut tokens_to_parse);
 
     if args.parse {
+        println!("Tree parsed: {:?}", syntax_tree);
         return Ok("Parsing only complete!".to_string());
     }
 

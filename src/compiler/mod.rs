@@ -254,18 +254,22 @@ pub mod parser {
 
     use super::lexer::Token;
 
+    #[derive(Debug)]
     pub enum ExpressionNode {
         Constant(usize),
     }
 
+    #[derive(Debug)]
     pub enum StatementNode {
         Return(ExpressionNode),
     }
 
+    #[derive(Debug)]
     pub enum FunctionDefinitionNode {
         Function(String, StatementNode),
     }
 
+    #[derive(Debug)]
     pub enum ProgramNode {
         Program(FunctionDefinitionNode),
     }
