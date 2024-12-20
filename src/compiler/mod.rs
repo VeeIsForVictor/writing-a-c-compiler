@@ -13,7 +13,7 @@ pub mod lexer {
     }
 
     #[derive(Debug)]
-    enum SymbolToken {
+    pub enum SymbolToken {
         OpenParen,
         CloseParen,
         OpenBrace,
@@ -25,7 +25,7 @@ pub mod lexer {
     }
 
     #[derive(Debug)]
-    enum KeywordToken {
+    pub enum KeywordToken {
         Int,
         Void,
         Return,
@@ -250,6 +250,12 @@ pub mod lexer {
 }
 
 pub mod parser {
+    use std::option::Iter;
+
+    use crate::compiler::lexer::{KeywordToken, SymbolToken};
+
+    use super::lexer::Token;
+
     enum ExpressionNode {
         Constant(usize),
     }
@@ -264,5 +270,42 @@ pub mod parser {
 
     enum ProgramNode {
         Program(FunctionDefinitionNode),
+    }
+
+    pub fn parse_program(tokens: Iter<Token>) -> ProgramNode {
+        let child = parse_function(tokens);
+        return ProgramNode::Program(child);
+    }
+
+    pub fn parse_function(mut tokens: Iter<Token>) -> FunctionDefinitionNode {
+        // match "int"
+        assert!(matches!(
+            tokens.next().unwrap().to_owned(),
+            Token::Keyword(KeywordToken::Int)
+        ));
+
+        // match <identifier>
+        let second_token = tokens.next().unwrap().to_owned();
+        assert!(matches!(second_token, Token::Identifier(name)));
+
+        // match "("
+        assert!(matches!(
+            tokens.next().unwrap().to_owned(),
+            Token::Symbol(SymbolToken::OpenParen)
+        ));
+
+        // match "void"
+        assert!(matches!(
+            tokens.next().unwrap().to_owned(),
+            Token::Keyword(KeywordToken::Void)
+        ));
+
+        // match ")"
+        assert!(matches!(
+            tokens.next().unwrap().to_owned(),
+            Token::Symbol(SymbolToken::CloseParen)
+        ));
+
+        panic!("Unexpected non keyword token")
     }
 }
