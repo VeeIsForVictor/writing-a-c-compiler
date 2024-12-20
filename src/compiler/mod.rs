@@ -354,7 +354,12 @@ pub mod parser {
     }
 
     pub fn parse_program<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ProgramNode {
+        // match <function>
         let child = parse_function(tokens);
+
+        // ensure tokens is empty after parsing
+        assert!(matches!(tokens.next(), Option::None));
+
         return ProgramNode::Program(child);
     }
 }
