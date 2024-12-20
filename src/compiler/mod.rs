@@ -256,28 +256,55 @@ pub mod parser {
 
     use super::lexer::Token;
 
-    enum ExpressionNode {
+    pub enum ExpressionNode {
         Constant(usize),
     }
 
-    enum StatementNode {
+    pub enum StatementNode {
         Return(ExpressionNode),
     }
 
-    enum FunctionDefinitionNode {
+    pub enum FunctionDefinitionNode {
         Function(String, StatementNode),
     }
 
-    enum ProgramNode {
+    pub enum ProgramNode {
         Program(FunctionDefinitionNode),
     }
 
-    pub fn parse_program(tokens: Iter<Token>) -> ProgramNode {
-        let child = parse_function(tokens);
-        return ProgramNode::Program(child);
+    fn parse_expression(tokens: &mut Iter<Token>) -> ExpressionNode {
+        // match <int>
+        let constant_token = tokens.next().unwrap().to_owned();
+        assert!(matches!(constant_token, Token::Constant(_)));
+        if let Token::Constant(val) = constant_token {
+            return ExpressionNode::Constant(
+                str::parse(val).expect("Could not parse constant as int"),
+            );
+        } else {
+            panic!("Syntax error!");
+        }
     }
 
-    pub fn parse_function(mut tokens: Iter<Token>) -> FunctionDefinitionNode {
+    fn parse_statement(tokens: &mut Iter<Token>) -> StatementNode {
+        // match "return"
+        assert!(matches!(
+            tokens.next().unwrap().to_owned(),
+            Token::Keyword(KeywordToken::Return)
+        ));
+
+        // match <expression>
+        let expression = parse_expression(tokens);
+
+        // match ";"
+        assert!(matches!(
+            tokens.next().unwrap().to_owned(),
+            Token::Symbol(SymbolToken::Semicolon)
+        ));
+
+        return StatementNode::Return(expression);
+    }
+
+    fn parse_function(tokens: &mut Iter<Token>) -> FunctionDefinitionNode {
         // match "int"
         assert!(matches!(
             tokens.next().unwrap().to_owned(),
@@ -285,8 +312,8 @@ pub mod parser {
         ));
 
         // match <identifier>
-        let second_token = tokens.next().unwrap().to_owned();
-        assert!(matches!(second_token, Token::Identifier(name)));
+        let name_token = tokens.next().unwrap().to_owned();
+        assert!(matches!(name_token, Token::Identifier(_)));
 
         // match "("
         assert!(matches!(
@@ -306,6 +333,30 @@ pub mod parser {
             Token::Symbol(SymbolToken::CloseParen)
         ));
 
-        panic!("Unexpected non keyword token")
+        // match "{"
+        assert!(matches!(
+            tokens.next().unwrap().to_owned(),
+            Token::Symbol(SymbolToken::OpenBrace)
+        ));
+
+        // match <statement>
+        let statement = parse_statement(tokens);
+
+        // match "}"
+        assert!(matches!(
+            tokens.next().unwrap().to_owned(),
+            Token::Symbol(SymbolToken::CloseBrace)
+        ));
+
+        if let Token::Identifier(name) = name_token {
+            return FunctionDefinitionNode::Function(name.to_owned(), statement);
+        } else {
+            panic!("Syntax error!");
+        }
+    }
+
+    pub fn parse_program(tokens: &mut Iter<Token>) -> ProgramNode {
+        let child = parse_function(tokens);
+        return ProgramNode::Program(child);
     }
 }
