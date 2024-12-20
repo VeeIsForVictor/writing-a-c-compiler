@@ -5,7 +5,10 @@ use std::{
 };
 
 use clap::Parser;
-use compiler::lexer::lex;
+use compiler::{
+    lexer::{lex, SymbolToken, Token},
+    parser::parse_program,
+};
 
 mod compiler;
 
@@ -112,6 +115,26 @@ fn compile(args: &Args) -> Result<String, Error> {
 
     if args.lex {
         return Ok("Lexing only complete!".to_string());
+    }
+
+    fn is_not_comment_or_whitespace(token: &Token) -> bool {
+        if let Token::Comment(_) = token {
+            false
+        } else if let Token::Symbol(SymbolToken::Whitespace) = token {
+            false
+        } else {
+            true
+        }
+    }
+
+    let mut tokens_to_parse = tokens
+        .iter()
+        .filter(|token| is_not_comment_or_whitespace(token));
+
+    let _syntax_tree = parse_program(&mut tokens_to_parse);
+
+    if args.parse {
+        return Ok("Parsing only complete!".to_string());
     }
 
     // delete the preprocessed file
