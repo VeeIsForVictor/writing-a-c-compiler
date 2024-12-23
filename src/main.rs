@@ -119,16 +119,6 @@ fn preprocess(args: &Args) -> Result<String, Error> {
 #[tracing::instrument]
 fn compile(args: &Args) -> Result<String, Error> {
     let code = read_to_string(&args.input_file).unwrap();
-    // create the assembly file
-    let assembly_filename = get_executable_name(&args.input_file);
-
-    let mut assembly_file = match File::create(format!("{assembly_filename}.s")) {
-        Ok(f) => f,
-        Err(e) => {
-            error!("error in creating assembly file: {e}");
-            return Result::Err(e);
-        }
-    };
 
     let tokens = lex(code);
 
@@ -170,6 +160,17 @@ fn compile(args: &Args) -> Result<String, Error> {
 
     let mut buffer = String::new();
     emit_program(codegen, &mut buffer);
+
+    // create the assembly file
+    let assembly_filename = get_executable_name(&args.input_file);
+
+    let mut assembly_file = match File::create(format!("{assembly_filename}.s")) {
+        Ok(f) => f,
+        Err(e) => {
+            error!("error in creating assembly file: {e}");
+            return Result::Err(e);
+        }
+    };
 
     assembly_file.write(buffer.as_bytes())?;
 
