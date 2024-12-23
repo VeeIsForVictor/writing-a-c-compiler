@@ -245,6 +245,8 @@ fn consume<'a>(chars: Chars, mut vec: Vec<Token>) -> Vec<Token> {
     }
 }
 
+fn postprocess_tokens(tokens: Vec<Token>) {}
+
 pub fn lex(code: String) -> Vec<Token> {
     let chars = code.chars();
     let vec = vec![];
