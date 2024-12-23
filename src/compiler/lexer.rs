@@ -245,10 +245,26 @@ fn consume<'a>(chars: Chars, mut vec: Vec<Token>) -> Vec<Token> {
     }
 }
 
-fn postprocess_tokens(tokens: Vec<Token>) {}
+fn postprocess_tokens(mut tokens: Vec<Token>) -> Vec<Token> {
+    use SymbolToken::*;
+    let mut i = 0;
+    let mut length = tokens.len();
+    while i < length - 1 {
+        if let Token::Symbol(Minus) = tokens[i] {
+            if let Token::Symbol(Minus) = tokens[i + 1] {
+                tokens[i] = Token::Symbol(Decrement);
+                tokens.remove(i + 1);
+                length -= 1;
+            }
+        }
+        i += 1;
+    }
+    tokens
+}
 
 pub fn lex(code: String) -> Vec<Token> {
     let chars = code.chars();
     let vec = vec![];
-    return consume(chars, vec);
+    let tokens = consume(chars, vec);
+    return postprocess_tokens(tokens);
 }
