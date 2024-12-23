@@ -3,8 +3,15 @@ use crate::compiler::lexer::{KeywordToken, SymbolToken};
 use super::lexer::Token;
 
 #[derive(Debug)]
+pub enum UnaryOperatorNode {
+    Complement,
+    Negate,
+}
+
+#[derive(Debug)]
 pub enum ExpressionNode {
     Constant(usize),
+    Unary(UnaryOperatorNode, Box<ExpressionNode>),
 }
 
 #[derive(Debug)]
