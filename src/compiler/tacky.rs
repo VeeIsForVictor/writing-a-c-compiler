@@ -1,6 +1,10 @@
+use std::sync::Mutex;
+
+use tracing::error;
+
 use super::parser::{ExpressionNode, FunctionDefinitionNode, ProgramNode, StatementNode};
 
-const temporary_counter: usize = 0;
+static TEMPORARY_COUNTER: Mutex<usize> = Mutex::new(0);
 
 #[derive(Debug)]
 pub enum TUnitaryOperatorNode {
@@ -30,11 +34,27 @@ pub enum TProgramNode {
     Program(TFunctionDefinitionNode),
 }
 
-fn tack_val(expression: ExpressionNode) -> TValNode {
-    if let ExpressionNode::Constant(c) = expression {
-        return TValNode::Constant(c);
-    } else {
-        panic!("Not yet implemented!");
+fn make_temporary_var() -> String {
+    match TEMPORARY_COUNTER.lock() {
+        Ok(mut counter) => {
+            let temp = *counter;
+            *counter += 1;
+            format!("tmp.{temp}")
+        }
+        Err(e) => {
+            error!("temporary variable counter mutex was poisoned: {e:?}");
+            panic!("Concurrency panic!");
+        }
+    }
+}
+
+fn tack_exp(expression: ExpressionNode) -> TValNode {
+    match expression {
+        ExpressionNode::Constant(c) => TValNode::Constant(c),
+        ExpressionNode::Unary(operator, exp) => {
+            let src = tack_exp(*exp);
+            let dst_name = make_temporary_var();
+        }
     }
 }
 
