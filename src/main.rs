@@ -27,12 +27,13 @@ struct Args {
     #[clap(short('S'), help("Keep the emitted assembly (.s) file"))]
     keep_assembly: bool,
 
+    #[clap(long, help("Compile only until the lexing stage"))]
     lex: bool,
 
-    #[clap(long)]
+    #[clap(long, help("Compile only until the parsing stage"))]
     parse: bool,
 
-    #[clap(long)]
+    #[clap(long, help("Compile only until the code generation stage"))]
     codegen: bool,
 }
 
