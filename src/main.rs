@@ -24,7 +24,9 @@ struct Args {
     #[arg(required = true)]
     input_file: String,
 
-    #[clap(long)]
+    #[clap(short('S'), help("Keep the emitted assembly (.s) file"))]
+    keep_assembly: bool,
+
     lex: bool,
 
     #[clap(long)]
