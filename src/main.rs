@@ -6,6 +6,7 @@ use std::{
 
 use clap::Parser;
 use compiler::{
+    emitter::emit_program,
     generator::generate_program,
     lexer::{lex, SymbolToken, Token},
     parser::parse_program,
@@ -154,6 +155,9 @@ fn compile(args: &Args) -> Result<String, Error> {
         debug!("code generated: {:?}", codegen);
         return Ok("Code Generation only complete!".to_string());
     }
+
+    let mut buffer = String::new();
+    let assembly = emit_program(codegen, &mut buffer);
 
     // delete the preprocessed file
     match remove_file(format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.i")) {
