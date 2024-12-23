@@ -9,7 +9,7 @@ use compiler::{
     lexer::{lex, SymbolToken, Token},
     parser::parse_program,
 };
-use tracing::instrument;
+use tracing::{error, info};
 
 mod compiler;
 
@@ -34,6 +34,7 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
+    tracing_forest::init();
 
     // create folder for temporary files
     match create_dir(format!("{TEMPORARY_FILE_DIR}")) {
@@ -75,6 +76,7 @@ fn graceful_exit(code: i32) {
     process::exit(code);
 }
 
+#[tracing::instrument]
 fn preprocess(args: &Args) -> Result<String, Error> {
     // preprocess and create the preprocessed file
     match Command::new("gcc")
@@ -88,25 +90,28 @@ fn preprocess(args: &Args) -> Result<String, Error> {
         .spawn()
     {
         Ok(mut child) => {
+            info!("awaiting gcc preprocess");
             child
                 .wait()
                 .expect("GCC child process failed while preprocessing for some reason");
         }
         Err(e) => {
-            eprintln!("Preprocessing by gcc failed. Error: {e}");
+            error!("error in calling gcc: {e}");
             return Result::Err(e);
         }
     }
+    info!("preprocessing complete");
     Ok("Preprocess complete".to_string())
 }
 
+#[tracing::instrument]
 fn compile(args: &Args) -> Result<String, Error> {
     let code = read_to_string(&args.input_file).unwrap();
     // create the assembly file
     match File::create(format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.s")) {
         Ok(_) => (),
         Err(e) => {
-            eprintln!("Failed to create the assembly file. Error: {e}");
+            error!("error in creating assembly file: {e}");
             return Result::Err(e);
         }
     }
@@ -143,13 +148,15 @@ fn compile(args: &Args) -> Result<String, Error> {
     match remove_file(format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.i")) {
         Ok(_) => (),
         Err(e) => {
-            eprintln!("Failed to delete the preprocessed file. Error: {e}");
+            error!("error in deleting preprocessed file: {e}");
             return Result::Err(e);
         }
     }
+    info!("compilation complete");
     Ok("Compilation complete!".to_string())
 }
 
+#[tracing::instrument]
 fn assemble_and_link(args: &Args) -> Result<String, Error> {
     // assemble and link the assembly file
     match Command::new("gcc")
@@ -166,7 +173,7 @@ fn assemble_and_link(args: &Args) -> Result<String, Error> {
                 .expect("GCC child process failed while assembling for some reason");
         }
         Err(e) => {
-            eprintln!("Assembly and linking by gcc failed. Error: {e}");
+            error!("error in gcc assembly step: {e}");
             return Result::Err(e);
         }
     }
@@ -175,9 +182,10 @@ fn assemble_and_link(args: &Args) -> Result<String, Error> {
     match remove_file(format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.s")) {
         Ok(_) => (),
         Err(e) => {
-            eprintln!("Failed to delete the assembly file. Error: {e}");
+            error!("error while deleting the assembly file: {e}");
             return Result::Err(e);
         }
     }
+    info!("assembly and linking complete");
     Ok("Assembly and Linking complete".to_string())
 }
