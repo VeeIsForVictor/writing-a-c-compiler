@@ -9,7 +9,7 @@ use compiler::{
     lexer::{lex, SymbolToken, Token},
     parser::parse_program,
 };
-use tracing::{error, info, warn};
+use tracing::{debug, error, info, warn};
 
 mod compiler;
 
@@ -120,7 +120,7 @@ fn compile(args: &Args) -> Result<String, Error> {
 
     if args.lex {
         warn!("stopping at lex");
-        println!("Tokens lexed: {:?}", tokens);
+        debug!("Tokens lexed: {:?}", tokens);
         return Ok("Lexing only complete!".to_string());
     }
 
@@ -142,7 +142,7 @@ fn compile(args: &Args) -> Result<String, Error> {
 
     if args.parse {
         warn!("stopping at parse");
-        println!("Tree parsed: {:?}", syntax_tree);
+        debug!("tree parsed: {:?}", syntax_tree);
         return Ok("Parsing only complete!".to_string());
     }
 
