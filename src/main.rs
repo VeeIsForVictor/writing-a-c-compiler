@@ -78,6 +78,13 @@ fn graceful_exit(code: i32) {
     process::exit(code);
 }
 
+// derive the name of the executable from the path of the input file, with ".c" removed, ensure that there is only one ".c" in path otherwise fail
+fn get_executable_name(src_path: String) -> String {
+    let filenames: Vec<&str> = src_path.split(".c").collect();
+    assert_eq!(filenames.len(), 1);
+    return String::from(filenames[0]);
+}
+
 #[tracing::instrument]
 fn preprocess(args: &Args) -> Result<String, Error> {
     // preprocess and create the preprocessed file
