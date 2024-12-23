@@ -184,11 +184,12 @@ fn compile(args: &Args) -> Result<String, Error> {
 #[tracing::instrument]
 fn assemble_and_link(args: &Args) -> Result<String, Error> {
     // assemble and link the assembly file
+    let executable_name = get_executable_name(&args.input_file);
     match Command::new("gcc")
         .args([
             &format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.s"),
             "-o",
-            "./output",
+            &format!("{executable_name}"),
         ])
         .spawn()
     {
