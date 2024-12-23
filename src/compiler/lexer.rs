@@ -21,6 +21,9 @@ pub enum SymbolToken {
     Quote,
     Whitespace,
     CommentSymbol,
+    Minus,
+    Decrement,
+    Tilde,
 }
 
 #[derive(Debug)]
@@ -70,6 +73,8 @@ fn check_for_symbol(ch: char) -> Option<SymbolToken> {
         '\"' => Some(Quote),
         '/' => Some(CommentSymbol),
         '\n' | ' ' | '\t' => Some(Whitespace),
+        '-' => Some(Minus),
+        '~' => Some(Tilde),
         _ => None,
     }
 }
