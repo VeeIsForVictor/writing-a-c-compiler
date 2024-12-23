@@ -2,15 +2,11 @@ use std::sync::Mutex;
 
 use tracing::error;
 
-use super::parser::{ExpressionNode, FunctionDefinitionNode, ProgramNode, StatementNode};
+use super::parser::{
+    ExpressionNode, FunctionDefinitionNode, ProgramNode, StatementNode, UnaryOperatorNode,
+};
 
 static TEMPORARY_COUNTER: Mutex<usize> = Mutex::new(0);
-
-#[derive(Debug)]
-pub enum TUnitaryOperatorNode {
-    Complement,
-    Negate,
-}
 
 #[derive(Debug)]
 pub enum TValNode {
@@ -20,8 +16,8 @@ pub enum TValNode {
 
 #[derive(Debug)]
 pub enum TInstructionNode {
-    Mov(TValNode, TValNode),
-    Ret,
+    Return(TValNode),
+    Unary(UnaryOperatorNode, TValNode, TValNode),
 }
 
 #[derive(Debug)]
@@ -48,19 +44,26 @@ fn make_temporary_var() -> String {
     }
 }
 
-fn tack_exp(expression: ExpressionNode) -> TValNode {
+fn tack_exp(
+    expression: ExpressionNode,
+    instruction_buffer: &mut Vec<TInstructionNode>,
+) -> TValNode {
     match expression {
         ExpressionNode::Constant(c) => TValNode::Constant(c),
         ExpressionNode::Unary(operator, exp) => {
-            let src = tack_exp(*exp);
+            let src = tack_exp(*exp, instruction_buffer);
             let dst_name = make_temporary_var();
+            let dst = TValNode::Var(dst_name);
+            instruction_buffer.push(TInstructionNode::Unary(operator, src, dst));
+            return dst;
         }
     }
 }
 
 fn tack_instructions(statement: StatementNode) -> Vec<TInstructionNode> {
+    let instruction_buffer: Vec<TInstructionNode> = vec![];
     let StatementNode::Return(expression) = statement;
-    return vec![];
+    return instruction_buffer;
 }
 
 fn tack_functions(function: FunctionDefinitionNode) -> TFunctionDefinitionNode {
