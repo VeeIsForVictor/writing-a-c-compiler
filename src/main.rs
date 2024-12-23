@@ -1,6 +1,6 @@
 use std::{
     fs::{create_dir, read_to_string, remove_dir_all, remove_file, File},
-    io::Error,
+    io::{Error, Write},
     process::{self, Command},
 };
 
@@ -110,13 +110,14 @@ fn preprocess(args: &Args) -> Result<String, Error> {
 fn compile(args: &Args) -> Result<String, Error> {
     let code = read_to_string(&args.input_file).unwrap();
     // create the assembly file
-    match File::create(format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.s")) {
-        Ok(_) => (),
-        Err(e) => {
-            error!("error in creating assembly file: {e}");
-            return Result::Err(e);
-        }
-    }
+    let mut assembly_file =
+        match File::create(format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.s")) {
+            Ok(f) => f,
+            Err(e) => {
+                error!("error in creating assembly file: {e}");
+                return Result::Err(e);
+            }
+        };
 
     let tokens = lex(code);
 
@@ -157,7 +158,9 @@ fn compile(args: &Args) -> Result<String, Error> {
     }
 
     let mut buffer = String::new();
-    let assembly = emit_program(codegen, &mut buffer);
+    emit_program(codegen, &mut buffer);
+
+    assembly_file.write(buffer.as_bytes())?;
 
     // delete the preprocessed file
     match remove_file(format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.i")) {
