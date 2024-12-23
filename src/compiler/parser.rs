@@ -1,3 +1,5 @@
+use tracing::error;
+
 use crate::compiler::lexer::{KeywordToken, SymbolToken};
 
 use super::lexer::Token;
@@ -31,10 +33,28 @@ pub enum ProgramNode {
 
 fn parse_expression<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ExpressionNode {
     // match <int>
-    let constant_token = tokens.next().unwrap().to_owned();
-    assert!(matches!(constant_token, Token::Constant(_)));
-    if let Token::Constant(val) = constant_token {
+    let first = tokens.next().unwrap().to_owned();
+    if let Token::Constant(val) = first {
         return ExpressionNode::Constant(str::parse(val).expect("Could not parse constant as int"));
+    } else if let Token::Symbol(operator) = first {
+        if let SymbolToken::OpenParen = operator {
+            let inner = parse_expression(tokens);
+            assert!(matches!(
+                tokens.next().unwrap(),
+                Token::Symbol(SymbolToken::CloseParen)
+            ));
+            return inner;
+        } else {
+            let operation: UnaryOperatorNode = match operator {
+                SymbolToken::Minus => UnaryOperatorNode::Negate,
+                SymbolToken::Tilde => UnaryOperatorNode::Complement,
+                _ => {
+                    error!("unrecognized symbol {:?} used as unary operator", operator);
+                    panic!("Syntax error!");
+                }
+            };
+            return ExpressionNode::Unary(operation, Box::new(parse_expression(tokens)));
+        }
     } else {
         panic!("Syntax error!");
     }
