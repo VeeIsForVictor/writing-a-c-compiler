@@ -120,14 +120,15 @@ fn preprocess(args: &Args) -> Result<String, Error> {
 fn compile(args: &Args) -> Result<String, Error> {
     let code = read_to_string(&args.input_file).unwrap();
     // create the assembly file
-    let mut assembly_file =
-        match File::create(format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.s")) {
-            Ok(f) => f,
-            Err(e) => {
-                error!("error in creating assembly file: {e}");
-                return Result::Err(e);
-            }
-        };
+    let assembly_filename = get_executable_name(&args.input_file);
+
+    let mut assembly_file = match File::create(format!("{assembly_filename}.s")) {
+        Ok(f) => f,
+        Err(e) => {
+            error!("error in creating assembly file: {e}");
+            return Result::Err(e);
+        }
+    };
 
     let tokens = lex(code);
 
@@ -190,7 +191,7 @@ fn assemble_and_link(args: &Args) -> Result<String, Error> {
     let executable_name = get_executable_name(&args.input_file);
     match Command::new("gcc")
         .args([
-            &format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.s"),
+            &format!("{executable_name}.s"),
             "-o",
             &format!("{executable_name}"),
         ])
@@ -207,14 +208,18 @@ fn assemble_and_link(args: &Args) -> Result<String, Error> {
         }
     }
 
-    // delete the assembly file
-    match remove_file(format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.s")) {
-        Ok(_) => (),
-        Err(e) => {
-            error!("error while deleting the assembly file: {e}");
-            return Result::Err(e);
+    if !args.keep_assembly {
+        // delete the assembly file
+        warn!("deleting assembly file");
+        match remove_file(format!("{executable_name}.s")) {
+            Ok(_) => (),
+            Err(e) => {
+                error!("error while deleting the assembly file: {e}");
+                return Result::Err(e);
+            }
         }
     }
+
     info!("assembly and linking complete");
     Ok("Assembly and Linking complete".to_string())
 }
