@@ -6,6 +6,7 @@ use std::{
 
 use clap::Parser;
 use compiler::{
+    generator::generate_program,
     lexer::{lex, SymbolToken, Token},
     parser::parse_program,
 };
@@ -144,6 +145,14 @@ fn compile(args: &Args) -> Result<String, Error> {
         warn!("stopping at parse");
         debug!("tree parsed: {:?}", syntax_tree);
         return Ok("Parsing only complete!".to_string());
+    }
+
+    let codegen = generate_program(syntax_tree);
+
+    if args.codegen {
+        warn!("stopping at codegen");
+        debug!("code generated: {:?}", codegen);
+        return Ok("Code Generation only complete!".to_string());
     }
 
     // delete the preprocessed file
