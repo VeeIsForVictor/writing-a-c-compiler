@@ -23,8 +23,11 @@ pub enum AProgramNode {
 }
 
 fn generate_operand(expression: ExpressionNode) -> AOperandNode {
-    let ExpressionNode::Constant(c) = expression;
-    return AOperandNode::Imm(c);
+    if let ExpressionNode::Constant(c) = expression {
+        return AOperandNode::Imm(c);
+    } else {
+        panic!("Not yet implemented!");
+    }
 }
 
 fn generate_instructions(statement: StatementNode) -> Vec<AInstructionNode> {
