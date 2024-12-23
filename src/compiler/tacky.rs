@@ -8,7 +8,7 @@ use super::parser::{
 
 static TEMPORARY_COUNTER: Mutex<usize> = Mutex::new(0);
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TValNode {
     Constant(usize),
     Var(String),
@@ -54,8 +54,9 @@ fn tack_exp(
             let src = tack_exp(*exp, instruction_buffer);
             let dst_name = make_temporary_var();
             let dst = TValNode::Var(dst_name);
+            let ret = dst.clone();
             instruction_buffer.push(TInstructionNode::Unary(operator, src, dst));
-            return dst;
+            return ret;
         }
     }
 }
