@@ -1,3 +1,5 @@
+use super::parser::{ExpressionNode, FunctionDefinitionNode, ProgramNode, StatementNode};
+
 #[derive(Debug)]
 pub enum AOperandNode {
     Imm(usize),
@@ -19,3 +21,11 @@ pub enum AFunctionDefinitionNode {
 pub enum AProgramNode {
     Program(AFunctionDefinitionNode),
 }
+
+pub fn generate_operand(expression: ExpressionNode) -> AOperandNode {}
+
+pub fn generate_instruction(statement: StatementNode) -> AInstructionNode {}
+
+pub fn generate_function(function: FunctionDefinitionNode) -> AFunctionDefinitionNode {}
+
+pub fn generate_program(program: ProgramNode) -> AProgramNode {}
