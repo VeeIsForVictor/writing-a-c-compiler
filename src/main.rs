@@ -9,6 +9,7 @@ use compiler::{
     lexer::{lex, SymbolToken, Token},
     parser::parse_program,
 };
+use tracing::instrument;
 
 mod compiler;
 
