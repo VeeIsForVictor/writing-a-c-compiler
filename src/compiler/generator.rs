@@ -22,10 +22,25 @@ pub enum AProgramNode {
     Program(AFunctionDefinitionNode),
 }
 
-pub fn generate_operand(expression: ExpressionNode) -> AOperandNode {}
+fn generate_operand(expression: ExpressionNode) -> AOperandNode {
+    let ExpressionNode::Constant(c) = expression;
+    return AOperandNode::Imm(c);
+}
 
-pub fn generate_instruction(statement: StatementNode) -> AInstructionNode {}
+fn generate_instructions(statement: StatementNode) -> Vec<AInstructionNode> {
+    let StatementNode::Return(expression) = statement;
+    return vec![
+        AInstructionNode::Mov(generate_operand(expression), AOperandNode::Register),
+        AInstructionNode::Ret,
+    ];
+}
 
-pub fn generate_function(function: FunctionDefinitionNode) -> AFunctionDefinitionNode {}
+fn generate_function(function: FunctionDefinitionNode) -> AFunctionDefinitionNode {
+    let FunctionDefinitionNode::Function(name, statement) = function;
+    return AFunctionDefinitionNode::Function(name, generate_instructions(statement));
+}
 
-pub fn generate_program(program: ProgramNode) -> AProgramNode {}
+pub fn generate_program(program: ProgramNode) -> AProgramNode {
+    let ProgramNode::Program(function) = program;
+    return AProgramNode::Program(generate_function(function));
+}
