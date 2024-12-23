@@ -1,5 +1,7 @@
 use super::parser::{ExpressionNode, FunctionDefinitionNode, ProgramNode, StatementNode};
 
+const temporary_counter: usize = 0;
+
 #[derive(Debug)]
 pub enum TUnitaryOperatorNode {
     Complement,
