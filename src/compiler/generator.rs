@@ -97,8 +97,8 @@ fn map_pseudoregister_name(identifier: &String, max_allocation: &mut isize) -> i
     assert_eq!(split.len(), 2);
     let count: isize = str::parse(split[1]).expect("Could not parse pseudoregister number");
     let current_max = *max_allocation;
-    *max_allocation = std::cmp::max(current_max, count * 4);
-    return -(count * 4);
+    *max_allocation = std::cmp::max(current_max, (count + 1) * 4);
+    return -((count + 1) * 4);
 }
 
 fn pseudoreg_to_stack(operand: &AOperandNode, mut max_allocation: &mut isize) -> AOperandNode {
