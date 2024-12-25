@@ -16,13 +16,17 @@ pub fn emit_function(a_function: AFunctionDefinitionNode, output: &mut String) {
 }
 
 pub fn emit_instructions(a_instruction: AInstructionNode, output: &mut String) {
-    if let AInstructionNode::Mov(src, dst) = a_instruction {
-        let src = direct_emit_operand(src);
-        let dst = direct_emit_operand(dst);
-        output.push_str(&format!("   movl    {src}, {dst}\n"));
-    } else {
-        assert!(matches!(a_instruction, AInstructionNode::Ret));
-        output.push_str("   ret\n");
+    match a_instruction {
+        AInstructionNode::Mov(src, dst) => {
+            let src = direct_emit_operand(src);
+            let dst = direct_emit_operand(dst);
+            output.push_str(&format!("   movl    {src}, {dst}\n"));
+        }
+        AInstructionNode::Ret => {
+            output.push_str("   ret\n");
+        }
+        AInstructionNode::Unary(operator, operand) => {}
+        AInstructionNode::AllocateStack(size) => {}
     }
 }
 
