@@ -3,13 +3,13 @@ use super::{
     tacker::{TFunctionDefinitionNode, TInstructionNode, TProgramNode, TValNode},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ARegisterNode {
     AX,
     R10,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum AOperandNode {
     Imm(usize),
     Reg(ARegisterNode),
@@ -17,13 +17,13 @@ pub enum AOperandNode {
     Stack(isize),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum AUnaryOperatorNode {
     Neg,
     Not,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum AInstructionNode {
     Mov(AOperandNode, AOperandNode),
     Unary(AUnaryOperatorNode, AOperandNode),
@@ -92,7 +92,30 @@ pub fn generate_program(program: TProgramNode) -> AProgramNode {
 
 fn validate_moves(instructions: &mut Vec<AInstructionNode>) {}
 
-fn replace_pseudoregs(instructions: &mut Vec<AInstructionNode>) {}
+fn pseudoreg_to_stack(operand: &AOperandNode) -> AOperandNode {
+    return match operand {
+        AOperandNode::Pseudo(name) => {}
+        _ => operand.clone(),
+    };
+}
+
+fn replace_instruction_pseudoregs(instruction: &AInstructionNode) -> AInstructionNode {
+    return match instruction {
+        AInstructionNode::Mov(op1, op2) => {
+            AInstructionNode::Mov(pseudoreg_to_stack(op1), pseudoreg_to_stack(op2))
+        }
+        AInstructionNode::Unary(operator, operand) => {
+            AInstructionNode::Unary(operator.clone(), pseudoreg_to_stack(operand))
+        }
+        _ => instruction.clone(),
+    };
+}
+
+fn replace_pseudoregs(instructions: &mut Vec<AInstructionNode>) {
+    for idx in 0..instructions.len() {
+        instructions[idx] = replace_instruction_pseudoregs(&instructions[idx])
+    }
+}
 
 fn postprocess_assembly(program: AProgramNode) -> AProgramNode {
     let AProgramNode::Program(function) = program;
