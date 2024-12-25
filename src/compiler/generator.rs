@@ -1,14 +1,30 @@
 use super::parser::{ExpressionNode, FunctionDefinitionNode, ProgramNode, StatementNode};
 
 #[derive(Debug)]
+pub enum ARegisterNode {
+    AX,
+    R10,
+}
+
+#[derive(Debug)]
 pub enum AOperandNode {
     Imm(usize),
-    Register,
+    Reg(ARegisterNode),
+    Pseudo(String),
+    Stack(isize),
+}
+
+#[derive(Debug)]
+pub enum AUnaryOperatorNode {
+    Neg,
+    Not,
 }
 
 #[derive(Debug)]
 pub enum AInstructionNode {
     Mov(AOperandNode, AOperandNode),
+    Unary(AUnaryOperatorNode, AOperandNode),
+    AllocateStack(usize),
     Ret,
 }
 
