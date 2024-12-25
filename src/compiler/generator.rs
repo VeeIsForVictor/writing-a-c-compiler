@@ -89,3 +89,9 @@ pub fn generate_program(program: TProgramNode) -> AProgramNode {
     let TProgramNode::Program(function) = program;
     return AProgramNode::Program(generate_function(function));
 }
+
+fn validate_moves(instructions: Vec<AInstructionNode>) {}
+
+fn replace_pseudoregs(instructions: Vec<AInstructionNode>) {}
+
+fn postprocess_assembly(program: AProgramNode) {}
