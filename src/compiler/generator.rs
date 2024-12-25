@@ -48,6 +48,7 @@ fn generate_function(function: TFunctionDefinitionNode) -> AFunctionDefinitionNo
     return AFunctionDefinitionNode::Function(name, generate_instructions(instructions));
 }
 
+#[tracing::instrument(skip_all)]
 pub fn generate_program(program: TProgramNode) -> AProgramNode {
     let TProgramNode::Program(function) = program;
     let postprocessed = postprocess_assembly(AProgramNode::Program(generate_function(function)));
@@ -126,6 +127,7 @@ fn validate_moves(
     return new_instructions;
 }
 
+#[tracing::instrument(skip_all)]
 fn postprocess_assembly(program: AProgramNode) -> AProgramNode {
     let AProgramNode::Program(function) = program;
     let AFunctionDefinitionNode::Function(name, mut instructions) = function;
