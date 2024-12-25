@@ -10,6 +10,7 @@ use compiler::{
     generator::generate_program,
     lexer::{lex, SymbolToken, Token},
     parser::parse_program,
+    tacker::tack_program,
 };
 use tracing::{debug, error, info, warn};
 
@@ -32,6 +33,9 @@ struct Args {
 
     #[clap(long, help("Compile only until the parsing stage"))]
     parse: bool,
+
+    #[clap(long, help("Compile only until the TACKY generation stage"))]
+    tacky: bool,
 
     #[clap(long, help("Compile only until the code generation stage"))]
     codegen: bool,
@@ -62,7 +66,7 @@ fn main() {
         Err(_) => graceful_exit(10),
     };
 
-    if !(args.lex || args.parse || args.codegen) {
+    if !(args.lex || args.parse || args.codegen || args.tacky) {
         // call assembler and linker
         match assemble_and_link(&args) {
             Ok(_) => (),
@@ -149,6 +153,16 @@ fn compile(args: &Args) -> Result<String, Error> {
         debug!("tree parsed: {:?}", syntax_tree);
         return Ok("Parsing only complete!".to_string());
     }
+
+    let tacky = tack_program(syntax_tree);
+
+    if args.tacky {
+        warn!("stopping at tacking");
+        debug!("tacky generated: {:?}", tacky);
+        return Ok("Tacky Generation only complete!".to_string());
+    }
+
+    panic!("Succeeding steps not yet implemented!");
 
     let codegen = generate_program(syntax_tree);
 
