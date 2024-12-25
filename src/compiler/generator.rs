@@ -164,5 +164,6 @@ fn postprocess_assembly(program: AProgramNode) -> AProgramNode {
     let AFunctionDefinitionNode::Function(name, mut instructions) = function;
     let mut max_allocation: isize = 0;
     replace_pseudoregs(&mut instructions, &mut max_allocation);
+    let instructions = validate_moves(&mut instructions, max_allocation);
     return AProgramNode::Program(AFunctionDefinitionNode::Function(name, instructions));
 }
