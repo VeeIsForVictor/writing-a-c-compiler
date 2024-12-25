@@ -1,4 +1,6 @@
-use super::generator::{AFunctionDefinitionNode, AInstructionNode, AOperandNode, AProgramNode};
+use super::generator::{
+    AFunctionDefinitionNode, AInstructionNode, AOperandNode, AProgramNode, AUnaryOperatorNode,
+};
 
 pub fn emit_program(a_program: AProgramNode, output: &mut String) {
     let AProgramNode::Program(a_function) = a_program;
@@ -38,3 +40,5 @@ pub fn direct_emit_operand(a_operand: AOperandNode) -> String {
         return format!("%eax");
     }
 }
+
+pub fn direct_emit_operator(a_operator: AUnaryOperatorNode) -> String {}
