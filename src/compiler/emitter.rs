@@ -1,5 +1,6 @@
 use super::generator::{
-    AFunctionDefinitionNode, AInstructionNode, AOperandNode, AProgramNode, AUnaryOperatorNode,
+    AFunctionDefinitionNode, AInstructionNode, AOperandNode, AProgramNode, ARegisterNode,
+    AUnaryOperatorNode,
 };
 
 pub fn emit_program(a_program: AProgramNode, output: &mut String) {
@@ -33,11 +34,11 @@ pub fn emit_instructions(a_instruction: AInstructionNode, output: &mut String) {
 }
 
 pub fn direct_emit_operand(a_operand: AOperandNode) -> String {
-    if let AOperandNode::Imm(c) = a_operand {
-        return format!("${c}");
-    } else {
-        assert!(matches!(a_operand, AOperandNode::Reg(_)));
-        return format!("%eax");
+    match a_operand {
+        AOperandNode::Imm(c) => format!("${c}"),
+        AOperandNode::Reg(ARegisterNode::AX) => format!("%eax"),
+        AOperandNode::Stack(addr) => format!(""),
+        _ => panic!("invalid operand found in emitter stage"),
     }
 }
 
