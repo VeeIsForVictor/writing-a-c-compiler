@@ -70,6 +70,7 @@ fn match_identifier_or_constant(value: String) -> Result<Token, Error> {
     ))
 }
 
+#[tracing::instrument(skip_all)]
 fn consume<'a>(chars: Chars, mut vec: Vec<Token>) -> Vec<Token> {
     use ReadState::*;
     use Token::*;
@@ -219,6 +220,7 @@ fn is_not_comment_or_whitespace(token: &Token) -> bool {
     }
 }
 
+#[tracing::instrument(skip_all)]
 fn postprocess_tokens(mut tokens: Vec<Token>) -> Vec<Token> {
     use SymbolToken::*;
     let mut i = 0;
@@ -240,6 +242,7 @@ fn postprocess_tokens(mut tokens: Vec<Token>) -> Vec<Token> {
         .collect()
 }
 
+#[tracing::instrument]
 pub fn lex(code: String) -> Vec<Token> {
     let chars = code.chars();
     let vec = vec![];

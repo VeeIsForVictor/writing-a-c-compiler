@@ -117,7 +117,7 @@ fn preprocess(args: &Args) -> Result<String, Error> {
     Ok("Preprocess complete".to_string())
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip_all)]
 fn compile(args: &Args) -> Result<String, Error> {
     let code = read_to_string(&args.input_file).unwrap();
 
@@ -181,7 +181,7 @@ fn compile(args: &Args) -> Result<String, Error> {
     Ok("Compilation complete!".to_string())
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip_all)]
 fn assemble_and_link(args: &Args) -> Result<String, Error> {
     // assemble and link the assembly file
     let executable_name = get_executable_name(&args.input_file);
