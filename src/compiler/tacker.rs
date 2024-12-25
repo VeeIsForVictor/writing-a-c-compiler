@@ -50,6 +50,7 @@ fn tack_functions(function: FunctionDefinitionNode) -> TFunctionDefinitionNode {
     return TFunctionDefinitionNode::Function(name, tack_instructions(statement));
 }
 
+#[tracing::instrument(skip_all)]
 pub fn tack_program(program: ProgramNode) -> TProgramNode {
     let ProgramNode::Program(function) = program;
     return TProgramNode::Program(tack_functions(function));
