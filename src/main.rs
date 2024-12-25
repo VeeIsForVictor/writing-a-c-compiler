@@ -162,9 +162,7 @@ fn compile(args: &Args) -> Result<String, Error> {
         return Ok("Tacky Generation only complete!".to_string());
     }
 
-    panic!("Succeeding steps not yet implemented!");
-
-    let codegen = generate_program(syntax_tree);
+    let codegen = generate_program(tacky);
 
     if args.codegen {
         warn!("stopping at codegen");
