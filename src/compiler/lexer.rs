@@ -4,43 +4,7 @@ use std::{
     str::Chars,
 };
 
-#[derive(Debug)]
-pub enum CommentToken {
-    LineComment,
-    BlockComment,
-    PendingComment,
-}
-
-#[derive(Debug)]
-pub enum SymbolToken {
-    OpenParen,
-    CloseParen,
-    OpenBrace,
-    CloseBrace,
-    Semicolon,
-    Quote,
-    Whitespace,
-    CommentSymbol,
-    Minus,
-    Decrement,
-    Tilde,
-}
-
-#[derive(Debug)]
-pub enum KeywordToken {
-    Int,
-    Void,
-    Return,
-}
-
-#[derive(Debug)]
-pub enum Token {
-    Identifier(String),
-    Constant(String),
-    Keyword(KeywordToken),
-    Symbol(SymbolToken),
-    Comment(CommentToken),
-}
+use super::tokens::*;
 
 #[derive(Debug)]
 enum ReadState<'a> {
@@ -245,6 +209,16 @@ fn consume<'a>(chars: Chars, mut vec: Vec<Token>) -> Vec<Token> {
     }
 }
 
+fn is_not_comment_or_whitespace(token: &Token) -> bool {
+    if let Token::Comment(_) = token {
+        false
+    } else if let Token::Symbol(SymbolToken::Whitespace) = token {
+        false
+    } else {
+        true
+    }
+}
+
 fn postprocess_tokens(mut tokens: Vec<Token>) -> Vec<Token> {
     use SymbolToken::*;
     let mut i = 0;
@@ -259,7 +233,11 @@ fn postprocess_tokens(mut tokens: Vec<Token>) -> Vec<Token> {
         }
         i += 1;
     }
+
     tokens
+        .into_iter()
+        .filter(is_not_comment_or_whitespace)
+        .collect()
 }
 
 pub fn lex(code: String) -> Vec<Token> {

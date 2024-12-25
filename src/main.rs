@@ -6,10 +6,7 @@ use std::{
 
 use clap::Parser;
 use compiler::{
-    emitter::emit_program,
-    generator::generate_program,
-    lexer::{lex, SymbolToken, Token},
-    parser::parse_program,
+    emitter::emit_program, generator::generate_program, lexer::lex, parser::parse_program,
     tacker::tack_program,
 };
 use tracing::{debug, error, info, warn};
@@ -132,21 +129,7 @@ fn compile(args: &Args) -> Result<String, Error> {
         return Ok("Lexing only complete!".to_string());
     }
 
-    fn is_not_comment_or_whitespace(token: &Token) -> bool {
-        if let Token::Comment(_) = token {
-            false
-        } else if let Token::Symbol(SymbolToken::Whitespace) = token {
-            false
-        } else {
-            true
-        }
-    }
-
-    let mut tokens_to_parse = tokens
-        .iter()
-        .filter(|token| is_not_comment_or_whitespace(token));
-
-    let syntax_tree = parse_program(&mut tokens_to_parse);
+    let syntax_tree = parse_program(&mut tokens.iter());
 
     if args.parse {
         warn!("stopping at parse");
