@@ -1,5 +1,5 @@
 use super::{
-    parser::{ExpressionNode, FunctionDefinitionNode, StatementNode, UnaryOperatorNode},
+    parser::UnaryOperatorNode,
     tacker::{TFunctionDefinitionNode, TInstructionNode, TProgramNode, TValNode},
 };
 
@@ -96,6 +96,6 @@ fn replace_pseudoregs(instructions: &mut Vec<AInstructionNode>) {}
 
 fn postprocess_assembly(program: AProgramNode) -> AProgramNode {
     let AProgramNode::Program(function) = program;
-    let AFunctionDefinitionNode::Function(_name, instructions) = function;
-    return program;
+    let AFunctionDefinitionNode::Function(name, instructions) = function;
+    return AProgramNode::Program(AFunctionDefinitionNode::Function(name, instructions));
 }
