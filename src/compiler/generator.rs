@@ -1,6 +1,6 @@
 use super::{
-    parser::{ExpressionNode, FunctionDefinitionNode, StatementNode},
-    tacker::{TFunctionDefinitionNode, TInstructionNode, TProgramNode},
+    parser::{ExpressionNode, FunctionDefinitionNode, StatementNode, UnaryOperatorNode},
+    tacker::{TFunctionDefinitionNode, TInstructionNode, TProgramNode, TValNode},
 };
 
 #[derive(Debug)]
@@ -41,9 +41,15 @@ pub enum AProgramNode {
     Program(AFunctionDefinitionNode),
 }
 
-fn generate_operand(expression: TInstructionNode) -> AOperandNode {}
+fn generate_operator(operator: UnaryOperatorNode) -> AUnaryOperatorNode {}
 
-fn generate_instructions(instructions: Vec<TInstructionNode>) -> Vec<AInstructionNode> {}
+fn generate_operand(expression: TValNode) -> AOperandNode {}
+
+fn generate_instruction(instruction: &TInstructionNode) -> AInstructionNode {}
+
+fn generate_instructions(instructions: Vec<TInstructionNode>) -> Vec<AInstructionNode> {
+    return instructions.iter().map(generate_instruction).collect();
+}
 
 fn generate_function(function: TFunctionDefinitionNode) -> AFunctionDefinitionNode {
     let TFunctionDefinitionNode::Function(name, instructions) = function;
