@@ -41,4 +41,9 @@ pub fn direct_emit_operand(a_operand: AOperandNode) -> String {
     }
 }
 
-pub fn direct_emit_operator(a_operator: AUnaryOperatorNode) -> String {}
+pub fn direct_emit_operator(a_operator: AUnaryOperatorNode) -> String {
+    match a_operator {
+        AUnaryOperatorNode::Neg => String::from("negl"),
+        AUnaryOperatorNode::Not => String::from("notl"),
+    }
+}
