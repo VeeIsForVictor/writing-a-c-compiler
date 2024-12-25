@@ -1,16 +1,19 @@
 use std::sync::Mutex;
 
-use tracing::error;
+use tracing::{debug, error};
 
 use super::{ast_tree::*, tac_tree::*};
 
 static TEMPORARY_COUNTER: Mutex<usize> = Mutex::new(0);
 
+#[tracing::instrument]
 fn make_temporary_var() -> String {
+    debug!("temporary variable creation called");
     match TEMPORARY_COUNTER.lock() {
         Ok(mut counter) => {
             let temp = *counter;
             *counter += 1;
+            debug!("temporary variable {temp} created");
             format!("tmp.{temp}")
         }
         Err(e) => {
