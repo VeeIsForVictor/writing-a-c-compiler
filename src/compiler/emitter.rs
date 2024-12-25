@@ -9,7 +9,7 @@ pub fn emit_program(a_program: AProgramNode, output: &mut String) {
     output.push_str("   .section .note.GNU-stack,\"\",@progbits\n");
 }
 
-pub fn emit_function(a_function: AFunctionDefinitionNode, output: &mut String) {
+fn emit_function(a_function: AFunctionDefinitionNode, output: &mut String) {
     let AFunctionDefinitionNode::Function(name, instructions) = a_function;
     output.push_str(&format!("   .globl {name}\n"));
     output.push_str(&format!("{name}:\n"));
@@ -18,7 +18,7 @@ pub fn emit_function(a_function: AFunctionDefinitionNode, output: &mut String) {
     }
 }
 
-pub fn emit_instructions(a_instruction: AInstructionNode, output: &mut String) {
+fn emit_instructions(a_instruction: AInstructionNode, output: &mut String) {
     match a_instruction {
         AInstructionNode::Mov(src, dst) => {
             let src = direct_emit_operand(src);
@@ -40,7 +40,7 @@ pub fn emit_instructions(a_instruction: AInstructionNode, output: &mut String) {
     output.push_str("\n");
 }
 
-pub fn direct_emit_operand(a_operand: AOperandNode) -> String {
+fn direct_emit_operand(a_operand: AOperandNode) -> String {
     match a_operand {
         AOperandNode::Imm(c) => format!("${c}"),
         AOperandNode::Reg(reg) => match reg {
@@ -52,7 +52,7 @@ pub fn direct_emit_operand(a_operand: AOperandNode) -> String {
     }
 }
 
-pub fn direct_emit_operator(a_operator: AUnaryOperatorNode) -> String {
+fn direct_emit_operator(a_operator: AUnaryOperatorNode) -> String {
     match a_operator {
         AUnaryOperatorNode::Neg => format!("negl"),
         AUnaryOperatorNode::Not => format!("notl"),
