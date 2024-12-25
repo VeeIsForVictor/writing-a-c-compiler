@@ -45,7 +45,7 @@ pub fn direct_emit_operand(a_operand: AOperandNode) -> String {
         AOperandNode::Imm(c) => format!("${c}"),
         AOperandNode::Reg(reg) => match reg {
             ARegisterNode::AX => format!("%eax"),
-            ARegisterNode::R10 => format!("%rd10"),
+            ARegisterNode::R10 => format!("%r10d"),
         },
         AOperandNode::Stack(addr) => format!("{addr}(%rbp)"),
         _ => panic!("invalid operand found in emitter stage"),
