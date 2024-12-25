@@ -28,8 +28,14 @@ pub fn emit_instructions(a_instruction: AInstructionNode, output: &mut String) {
         AInstructionNode::Ret => {
             output.push_str("   ret\n");
         }
-        AInstructionNode::Unary(operator, operand) => {}
-        AInstructionNode::AllocateStack(size) => {}
+        AInstructionNode::Unary(operator, operand) => {
+            let operand = direct_emit_operand(operand);
+            let operator = direct_emit_operator(operator);
+            output.push_str(&format!("   {operator}    {operand}"));
+        }
+        AInstructionNode::AllocateStack(size) => {
+            output.push_str(&format!("  subq    ${size}, %rsp"));
+        }
     }
 }
 
