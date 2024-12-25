@@ -1,4 +1,7 @@
-use super::parser::{ExpressionNode, FunctionDefinitionNode, ProgramNode, StatementNode};
+use super::{
+    parser::{ExpressionNode, FunctionDefinitionNode, StatementNode},
+    tacker::{TFunctionDefinitionNode, TInstructionNode, TProgramNode},
+};
 
 #[derive(Debug)]
 pub enum ARegisterNode {
@@ -38,28 +41,16 @@ pub enum AProgramNode {
     Program(AFunctionDefinitionNode),
 }
 
-fn generate_operand(expression: ExpressionNode) -> AOperandNode {
-    if let ExpressionNode::Constant(c) = expression {
-        return AOperandNode::Imm(c);
-    } else {
-        panic!("Not yet implemented!");
-    }
+fn generate_operand(expression: TInstructionNode) -> AOperandNode {}
+
+fn generate_instructions(instructions: Vec<TInstructionNode>) -> Vec<AInstructionNode> {}
+
+fn generate_function(function: TFunctionDefinitionNode) -> AFunctionDefinitionNode {
+    let TFunctionDefinitionNode::Function(name, instructions) = function;
+    return AFunctionDefinitionNode::Function(name, generate_instructions(instructions));
 }
 
-fn generate_instructions(statement: StatementNode) -> Vec<AInstructionNode> {
-    let StatementNode::Return(expression) = statement;
-    return vec![
-        AInstructionNode::Mov(generate_operand(expression), AOperandNode::Register),
-        AInstructionNode::Ret,
-    ];
-}
-
-fn generate_function(function: FunctionDefinitionNode) -> AFunctionDefinitionNode {
-    let FunctionDefinitionNode::Function(name, statement) = function;
-    return AFunctionDefinitionNode::Function(name, generate_instructions(statement));
-}
-
-pub fn generate_program(program: ProgramNode) -> AProgramNode {
-    let ProgramNode::Program(function) = program;
+pub fn generate_program(program: TProgramNode) -> AProgramNode {
+    let TProgramNode::Program(function) = program;
     return AProgramNode::Program(generate_function(function));
 }
