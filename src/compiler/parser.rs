@@ -1,8 +1,6 @@
 use tracing::error;
 
-use crate::compiler::lexer::{KeywordToken, SymbolToken};
-
-use super::lexer::Token;
+use super::tokens::{KeywordToken, SymbolToken, Token};
 
 #[derive(Debug)]
 pub enum UnaryOperatorNode {
