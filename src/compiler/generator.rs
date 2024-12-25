@@ -90,43 +90,56 @@ pub fn generate_program(program: TProgramNode) -> AProgramNode {
     return AProgramNode::Program(generate_function(function));
 }
 
-fn validate_moves(instructions: &mut Vec<AInstructionNode>) {}
-
-fn map_pseudoregister_name(identifier: &String) -> isize {
+fn map_pseudoregister_name(identifier: &String, max_allocation: &mut isize) -> isize {
     let split: Vec<&str> = identifier.split(".").collect();
     // assume that all pseudoregisters are identified as "temp.{n}"
     assert_eq!(split.len(), 2);
     let count: isize = str::parse(split[1]).expect("Could not parse pseudoregister number");
+    let current_max = *max_allocation;
+    *max_allocation = std::cmp::max(current_max, count * 4);
     return -(count * 4);
 }
 
-fn pseudoreg_to_stack(operand: &AOperandNode) -> AOperandNode {
+fn pseudoreg_to_stack(operand: &AOperandNode, mut max_allocation: &mut isize) -> AOperandNode {
     return match operand {
-        AOperandNode::Pseudo(name) => AOperandNode::Stack(map_pseudoregister_name(name)),
+        AOperandNode::Pseudo(name) => {
+            AOperandNode::Stack(map_pseudoregister_name(name, &mut max_allocation))
+        }
         _ => operand.clone(),
     };
 }
 
-fn replace_instruction_pseudoregs(instruction: &AInstructionNode) -> AInstructionNode {
+fn replace_instruction_pseudoregs(
+    instruction: &AInstructionNode,
+    mut max_allocation: &mut isize,
+) -> AInstructionNode {
     return match instruction {
-        AInstructionNode::Mov(op1, op2) => {
-            AInstructionNode::Mov(pseudoreg_to_stack(op1), pseudoreg_to_stack(op2))
-        }
-        AInstructionNode::Unary(operator, operand) => {
-            AInstructionNode::Unary(operator.clone(), pseudoreg_to_stack(operand))
-        }
+        AInstructionNode::Mov(op1, op2) => AInstructionNode::Mov(
+            pseudoreg_to_stack(op1, &mut max_allocation),
+            pseudoreg_to_stack(op2, &mut max_allocation),
+        ),
+        AInstructionNode::Unary(operator, operand) => AInstructionNode::Unary(
+            operator.clone(),
+            pseudoreg_to_stack(operand, max_allocation),
+        ),
         _ => instruction.clone(),
     };
 }
 
-fn replace_pseudoregs(instructions: &mut Vec<AInstructionNode>) {
+fn replace_pseudoregs(instructions: &mut Vec<AInstructionNode>, mut max_allocation: &mut isize) {
     for idx in 0..instructions.len() {
-        instructions[idx] = replace_instruction_pseudoregs(&instructions[idx])
+        instructions[idx] = replace_instruction_pseudoregs(&instructions[idx], &mut max_allocation)
     }
+}
+
+fn validate_moves(instructions: &mut Vec<AInstructionNode>) {
+    for idx in 0..instructions.len() {}
 }
 
 fn postprocess_assembly(program: AProgramNode) -> AProgramNode {
     let AProgramNode::Program(function) = program;
-    let AFunctionDefinitionNode::Function(name, instructions) = function;
+    let AFunctionDefinitionNode::Function(name, mut instructions) = function;
+    let mut max_allocation: isize = 0;
+    replace_pseudoregs(&mut instructions, &mut max_allocation);
     return AProgramNode::Program(AFunctionDefinitionNode::Function(name, instructions));
 }
