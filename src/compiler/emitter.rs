@@ -36,8 +36,11 @@ pub fn emit_instructions(a_instruction: AInstructionNode, output: &mut String) {
 pub fn direct_emit_operand(a_operand: AOperandNode) -> String {
     match a_operand {
         AOperandNode::Imm(c) => format!("${c}"),
-        AOperandNode::Reg(ARegisterNode::AX) => format!("%eax"),
-        AOperandNode::Stack(addr) => format!(""),
+        AOperandNode::Reg(reg) => match reg {
+            ARegisterNode::AX => format!("%eax"),
+            ARegisterNode::R10 => format!("%rd10"),
+        },
+        AOperandNode::Stack(addr) => format!("{addr}(%rbp)"),
         _ => panic!("invalid operand found in emitter stage"),
     }
 }
