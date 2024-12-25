@@ -41,9 +41,19 @@ pub enum AProgramNode {
     Program(AFunctionDefinitionNode),
 }
 
-fn generate_operator(operator: UnaryOperatorNode) -> AUnaryOperatorNode {}
+fn generate_operator(operator: UnaryOperatorNode) -> AUnaryOperatorNode {
+    return match operator {
+        UnaryOperatorNode::Complement => AUnaryOperatorNode::Not,
+        UnaryOperatorNode::Negate => AUnaryOperatorNode::Neg,
+    };
+}
 
-fn generate_operand(expression: TValNode) -> AOperandNode {}
+fn generate_operand(operand: TValNode) -> AOperandNode {
+    return match operand {
+        TValNode::Constant(c) => AOperandNode::Imm(c),
+        TValNode::Var(id) => AOperandNode::Pseudo(id),
+    };
+}
 
 fn generate_instruction(instruction: TInstructionNode) -> Vec<AInstructionNode> {
     return match instruction {
