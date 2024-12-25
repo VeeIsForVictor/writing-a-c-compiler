@@ -132,8 +132,31 @@ fn replace_pseudoregs(instructions: &mut Vec<AInstructionNode>, mut max_allocati
     }
 }
 
-fn validate_moves(instructions: &mut Vec<AInstructionNode>) {
-    for idx in 0..instructions.len() {}
+fn replace_invalid_moves(instruction: &AInstructionNode) -> Vec<AInstructionNode> {
+    use AOperandNode::*;
+    return match instruction {
+        AInstructionNode::Mov(Stack(src), Stack(dst)) => vec![
+            AInstructionNode::Mov(Stack(*src), Reg(ARegisterNode::R10)),
+            AInstructionNode::Mov(Reg(ARegisterNode::R10), Stack(*dst)),
+        ],
+        _ => vec![instruction.clone()],
+    };
+}
+
+fn validate_moves(
+    instructions: &mut Vec<AInstructionNode>,
+    max_allocation: isize,
+) -> Vec<AInstructionNode> {
+    let mut new_instructions: Vec<AInstructionNode> = vec![];
+    new_instructions.push(AInstructionNode::AllocateStack(
+        usize::try_from(max_allocation).expect("failed to convert max allocation to isize"),
+    ));
+    for instruction in instructions {
+        while let Some(new_instruction) = replace_invalid_moves(instruction).iter().next() {
+            new_instructions.push(new_instruction.clone());
+        }
+    }
+    return new_instructions;
 }
 
 fn postprocess_assembly(program: AProgramNode) -> AProgramNode {
