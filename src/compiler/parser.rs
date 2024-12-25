@@ -1,33 +1,7 @@
 use tracing::error;
 
+use super::ast_tree::*;
 use super::tokens::{KeywordToken, SymbolToken, Token};
-
-#[derive(Debug)]
-pub enum UnaryOperatorNode {
-    Complement,
-    Negate,
-}
-
-#[derive(Debug)]
-pub enum ExpressionNode {
-    Constant(usize),
-    Unary(UnaryOperatorNode, Box<ExpressionNode>),
-}
-
-#[derive(Debug)]
-pub enum StatementNode {
-    Return(ExpressionNode),
-}
-
-#[derive(Debug)]
-pub enum FunctionDefinitionNode {
-    Function(String, StatementNode),
-}
-
-#[derive(Debug)]
-pub enum ProgramNode {
-    Program(FunctionDefinitionNode),
-}
 
 fn parse_expression<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ExpressionNode {
     // match <int>

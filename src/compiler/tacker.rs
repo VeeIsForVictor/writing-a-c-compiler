@@ -2,9 +2,7 @@ use std::sync::Mutex;
 
 use tracing::error;
 
-use super::parser::{
-    ExpressionNode, FunctionDefinitionNode, ProgramNode, StatementNode, UnaryOperatorNode,
-};
+use super::ast_tree::*;
 
 static TEMPORARY_COUNTER: Mutex<usize> = Mutex::new(0);
 
