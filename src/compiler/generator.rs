@@ -87,7 +87,8 @@ fn generate_function(function: TFunctionDefinitionNode) -> AFunctionDefinitionNo
 
 pub fn generate_program(program: TProgramNode) -> AProgramNode {
     let TProgramNode::Program(function) = program;
-    return AProgramNode::Program(generate_function(function));
+    let postprocessed = postprocess_assembly(AProgramNode::Program(generate_function(function)));
+    return postprocessed;
 }
 
 fn map_pseudoregister_name(identifier: &String, max_allocation: &mut isize) -> isize {
