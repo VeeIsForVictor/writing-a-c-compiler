@@ -45,10 +45,37 @@ fn generate_operator(operator: UnaryOperatorNode) -> AUnaryOperatorNode {}
 
 fn generate_operand(expression: TValNode) -> AOperandNode {}
 
-fn generate_instruction(instruction: &TInstructionNode) -> AInstructionNode {}
+fn generate_instruction(
+    instruction: TInstructionNode,
+    instruction_buffer: &mut Vec<AInstructionNode>,
+) {
+    return match instruction {
+        TInstructionNode::Return(val) => {
+            instruction_buffer.push(AInstructionNode::Mov(
+                generate_operand(val),
+                AOperandNode::Reg(ARegisterNode::AX),
+            ));
+            instruction_buffer.push(AInstructionNode::Ret);
+        }
+        TInstructionNode::Unary(op, src, dst) => {
+            instruction_buffer.push(AInstructionNode::Mov(
+                generate_operand(src),
+                generate_operand(dst.clone()),
+            ));
+            instruction_buffer.push(AInstructionNode::Unary(
+                generate_operator(op),
+                generate_operand(dst),
+            ));
+        }
+    };
+}
 
 fn generate_instructions(instructions: Vec<TInstructionNode>) -> Vec<AInstructionNode> {
-    return instructions.iter().map(generate_instruction).collect();
+    let mut instruction_buffer: Vec<AInstructionNode> = vec![];
+    for instruction in instructions {
+        generate_instruction(instruction, &mut instruction_buffer);
+    }
+    return instruction_buffer;
 }
 
 fn generate_function(function: TFunctionDefinitionNode) -> AFunctionDefinitionNode {
