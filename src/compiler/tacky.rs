@@ -62,8 +62,10 @@ fn tack_exp(
 }
 
 fn tack_instructions(statement: StatementNode) -> Vec<TInstructionNode> {
-    let instruction_buffer: Vec<TInstructionNode> = vec![];
+    let mut instruction_buffer: Vec<TInstructionNode> = vec![];
     let StatementNode::Return(expression) = statement;
+    let final_return = TInstructionNode::Return(tack_exp(expression, &mut instruction_buffer));
+    instruction_buffer.push(final_return);
     return instruction_buffer;
 }
 
