@@ -30,7 +30,7 @@ pub fn direct_emit_operand(a_operand: AOperandNode) -> String {
     if let AOperandNode::Imm(c) = a_operand {
         return format!("${c}");
     } else {
-        assert!(matches!(a_operand, AOperandNode::Register));
+        assert!(matches!(a_operand, AOperandNode::Reg(_)));
         return format!("%eax");
     }
 }
