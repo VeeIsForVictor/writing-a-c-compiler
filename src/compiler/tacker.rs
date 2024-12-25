@@ -2,31 +2,9 @@ use std::sync::Mutex;
 
 use tracing::error;
 
-use super::ast_tree::*;
+use super::{ast_tree::*, tac_tree::*};
 
 static TEMPORARY_COUNTER: Mutex<usize> = Mutex::new(0);
-
-#[derive(Debug, Clone)]
-pub enum TValNode {
-    Constant(usize),
-    Var(String),
-}
-
-#[derive(Debug)]
-pub enum TInstructionNode {
-    Return(TValNode),
-    Unary(UnaryOperatorNode, TValNode, TValNode),
-}
-
-#[derive(Debug)]
-pub enum TFunctionDefinitionNode {
-    Function(String, Vec<TInstructionNode>),
-}
-
-#[derive(Debug)]
-pub enum TProgramNode {
-    Program(TFunctionDefinitionNode),
-}
 
 fn make_temporary_var() -> String {
     match TEMPORARY_COUNTER.lock() {

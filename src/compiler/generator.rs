@@ -1,6 +1,6 @@
 use super::{
-    parser::UnaryOperatorNode,
-    tacker::{TFunctionDefinitionNode, TInstructionNode, TProgramNode, TValNode},
+    ast_tree::UnaryOperatorNode,
+    tac_tree::{TFunctionDefinitionNode, TInstructionNode, TProgramNode, TValNode},
 };
 
 #[derive(Debug, Clone)]
