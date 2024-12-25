@@ -23,10 +23,10 @@ pub fn emit_instructions(a_instruction: AInstructionNode, output: &mut String) {
         AInstructionNode::Mov(src, dst) => {
             let src = direct_emit_operand(src);
             let dst = direct_emit_operand(dst);
-            output.push_str(&format!("   movl    {src}, {dst}\n"));
+            output.push_str(&format!("   movl    {src}, {dst}"));
         }
         AInstructionNode::Ret => {
-            output.push_str("   ret\n");
+            output.push_str("   ret");
         }
         AInstructionNode::Unary(operator, operand) => {
             let operand = direct_emit_operand(operand);
@@ -37,6 +37,7 @@ pub fn emit_instructions(a_instruction: AInstructionNode, output: &mut String) {
             output.push_str(&format!("  subq    ${size}, %rsp"));
         }
     }
+    output.push_str("\n");
 }
 
 pub fn direct_emit_operand(a_operand: AOperandNode) -> String {
