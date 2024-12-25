@@ -92,9 +92,17 @@ pub fn generate_program(program: TProgramNode) -> AProgramNode {
 
 fn validate_moves(instructions: &mut Vec<AInstructionNode>) {}
 
+fn map_pseudoregister_name(identifier: &String) -> isize {
+    let split: Vec<&str> = identifier.split(".").collect();
+    // assume that all pseudoregisters are identified as "temp.{n}"
+    assert_eq!(split.len(), 2);
+    let count: isize = str::parse(split[1]).expect("Could not parse pseudoregister number");
+    return -(count * 4);
+}
+
 fn pseudoreg_to_stack(operand: &AOperandNode) -> AOperandNode {
     return match operand {
-        AOperandNode::Pseudo(name) => {}
+        AOperandNode::Pseudo(name) => AOperandNode::Stack(map_pseudoregister_name(name)),
         _ => operand.clone(),
     };
 }
