@@ -1,4 +1,4 @@
-use super::generator::{
+use super::asm_tree::{
     AFunctionDefinitionNode, AInstructionNode, AOperandNode, AProgramNode, ARegisterNode,
     AUnaryOperatorNode,
 };
