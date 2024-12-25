@@ -102,6 +102,7 @@ fn parse_function<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> FunctionD
     }
 }
 
+#[tracing::instrument(skip_all)]
 pub fn parse_program<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ProgramNode {
     // match <function>
     let child = parse_function(tokens);
