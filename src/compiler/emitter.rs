@@ -3,6 +3,7 @@ use super::asm_tree::{
     AUnaryOperatorNode,
 };
 
+#[tracing::instrument(skip_all)]
 pub fn emit_program(a_program: AProgramNode, output: &mut String) {
     let AProgramNode::Program(a_function) = a_program;
     emit_function(a_function, output);
