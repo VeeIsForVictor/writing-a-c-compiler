@@ -152,8 +152,11 @@ fn validate_moves(
     new_instructions.push(AInstructionNode::AllocateStack(
         usize::try_from(max_allocation).expect("failed to convert max allocation to isize"),
     ));
-    for instruction in instructions {
-        while let Some(new_instruction) = replace_invalid_moves(instruction).iter().next() {
+    for idx in 0..instructions.len() {
+        let instruction = &instructions[idx];
+        let replaced_moves = replace_invalid_moves(instruction);
+        let mut to_insert = replaced_moves.iter();
+        while let Some(new_instruction) = to_insert.next() {
             new_instructions.push(new_instruction.clone());
         }
     }
