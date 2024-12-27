@@ -57,6 +57,23 @@ pub enum AInstructionNode {
     Ret,
 }
 
+impl Display for AInstructionNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "\t")?;
+        match self {
+            AInstructionNode::Mov(src, dst) => write!(f, "movl\t{src}, {dst}"),
+            AInstructionNode::Unary(operator, operand) => write!(f, "{operator}\t{operand}"),
+            AInstructionNode::AllocateStack(size) => write!(f, "subq\t$({size}), %rsp"),
+            AInstructionNode::Ret => {
+                write!(f, "movq %rbp, %rsp\n")?;
+                write!(f, "\tpopq %rbp\n")?;
+                write!(f, "\tret")
+            }
+        }?;
+        write!(f, "\n")
+    }
+}
+
 #[derive(Debug)]
 pub enum AFunctionDefinitionNode {
     Function(String, Vec<AInstructionNode>),
