@@ -5,9 +5,19 @@ pub enum UnaryOperatorNode {
 }
 
 #[derive(Debug)]
+pub enum BinaryOperatorNode {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Remainder,
+}
+
+#[derive(Debug)]
 pub enum ExpressionNode {
     Constant(usize),
     Unary(UnaryOperatorNode, Box<ExpressionNode>),
+    Binary(BinaryOperatorNode, Box<ExpressionNode>, Box<ExpressionNode>),
 }
 
 #[derive(Debug)]
