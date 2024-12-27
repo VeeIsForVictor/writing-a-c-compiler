@@ -26,23 +26,6 @@ enum ReadState<'a> {
     Exit,
 }
 
-fn check_for_symbol(ch: char) -> Option<SymbolToken> {
-    use SymbolToken::*;
-    match ch {
-        '(' => Some(OpenParen),
-        ')' => Some(CloseParen),
-        '{' => Some(OpenBrace),
-        '}' => Some(CloseBrace),
-        ';' => Some(Semicolon),
-        '\"' => Some(Quote),
-        '/' => Some(CommentSymbol),
-        '\n' | ' ' | '\t' => Some(Whitespace),
-        '-' => Some(Minus),
-        '~' => Some(Tilde),
-        _ => None,
-    }
-}
-
 fn match_non_symbol_token(value: String) -> Result<Token, Error> {
     use KeywordToken::*;
     use Token::*;
@@ -83,8 +66,8 @@ fn consume<'a>(chars: Chars, mut vec: Vec<Token>) -> Vec<Token> {
                 mut remaining_chars,
             } => match remaining_chars.next() {
                 None => Exit,
-                Some(char) => match check_for_symbol(char) {
-                    Some(symbol) => match symbol {
+                Some(char) => match SymbolToken::try_from(char) {
+                    Ok(symbol) => match symbol {
                         SymbolToken::CommentSymbol => HandlingComment {
                             remaining_chars: remaining_chars,
                             comment_value: CommentToken::PendingComment,
@@ -94,7 +77,7 @@ fn consume<'a>(chars: Chars, mut vec: Vec<Token>) -> Vec<Token> {
                             token: Symbol(symbol),
                         },
                     },
-                    None => Building {
+                    Err(_) => Building {
                         remaining_chars,
                         current_value: char.to_string(),
                     },
@@ -173,7 +156,7 @@ fn consume<'a>(chars: Chars, mut vec: Vec<Token>) -> Vec<Token> {
                         .expect("Non-symbol token matching raised an error"),
                 },
                 Some(char) => {
-                    if let Some(_) = check_for_symbol(char.to_owned()) {
+                    if let Ok(_) = SymbolToken::try_from(char.to_owned()) {
                         Done {
                             remaining_chars: remaining_chars,
                             token: match_non_symbol_token(current_value)
