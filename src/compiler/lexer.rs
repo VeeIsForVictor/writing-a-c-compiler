@@ -68,7 +68,7 @@ fn consume<'a>(chars: Chars, mut vec: Vec<Token>) -> Vec<Token> {
                 None => Exit,
                 Some(char) => match SymbolToken::try_from(char) {
                     Ok(symbol) => match symbol {
-                        SymbolToken::CommentSymbol => HandlingComment {
+                        SymbolToken::ForwardSlash => HandlingComment {
                             remaining_chars: remaining_chars,
                             comment_value: CommentToken::PendingComment,
                         },
