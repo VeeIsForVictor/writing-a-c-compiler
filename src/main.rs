@@ -168,6 +168,7 @@ fn compile(args: &Args) -> Result<String, Error> {
         }
     };
 
+    warn!("assembly file {assembly_filename}.s created");
     assembly_file.write(buffer.as_bytes())?;
 
     // delete the preprocessed file
