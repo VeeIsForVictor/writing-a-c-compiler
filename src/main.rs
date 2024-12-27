@@ -130,7 +130,7 @@ fn compile(args: &Args) -> Result<String, Error> {
         return Ok("Lexing only complete!".to_string());
     }
 
-    let syntax_tree = parse_program(&mut tokens.iter());
+    let syntax_tree = parse_program(&mut tokens.iter().peekable());
 
     if args.parse {
         warn!("stopping at parse");

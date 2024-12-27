@@ -1,9 +1,11 @@
+use std::iter::Peekable;
+
 use tracing::error;
 
 use super::ast_tree::*;
 use super::tokens::{KeywordToken, SymbolToken, Token};
 
-fn parse_factor<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ExpressionNode {
+fn parse_factor<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> ExpressionNode {
     // match <int>
     let first = tokens.next().unwrap().to_owned();
     if let Token::Constant(val) = first {
@@ -34,9 +36,8 @@ fn parse_factor<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ExpressionN
     }
 }
 
-fn parse_expression<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ExpressionNode {
+fn parse_expression<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> ExpressionNode {
     let mut left = parse_factor(tokens);
-    let mut tokens = tokens.peekable();
     loop {
         let next = tokens.peek().unwrap();
         if let Token::Symbol(sym) = next {
@@ -50,7 +51,7 @@ fn parse_expression<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> Express
                         Token::Symbol(SymbolToken::ForwardSlash) => BinaryOperatorNode::Divide,
                         _ => panic!("unrecognized symbol used as operator in binop"),
                     };
-                    let right = parse_factor(&mut tokens);
+                    let right = parse_factor(tokens);
                     left = ExpressionNode::Binary(operator, Box::new(left), Box::new(right));
                 }
                 _ => break,
@@ -60,7 +61,7 @@ fn parse_expression<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> Express
     return left;
 }
 
-fn parse_statement<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> StatementNode {
+fn parse_statement<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> StatementNode {
     // match "return"
     assert!(matches!(
         tokens.next().unwrap().to_owned(),
@@ -79,7 +80,9 @@ fn parse_statement<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> Statemen
     return StatementNode::Return(expression);
 }
 
-fn parse_function<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> FunctionDefinitionNode {
+fn parse_function<'a>(
+    tokens: &mut Peekable<impl Iterator<Item = &'a Token>>,
+) -> FunctionDefinitionNode {
     // match "int"
     assert!(matches!(
         tokens.next().unwrap().to_owned(),
@@ -131,7 +134,7 @@ fn parse_function<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> FunctionD
 }
 
 #[tracing::instrument(skip_all)]
-pub fn parse_program<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ProgramNode {
+pub fn parse_program<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> ProgramNode {
     // match <function>
     let child = parse_function(tokens);
 
