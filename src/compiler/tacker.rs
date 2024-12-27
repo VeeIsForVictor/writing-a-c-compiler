@@ -37,7 +37,7 @@ fn tack_exp(
             instruction_buffer.push(TInstructionNode::Unary(operator, src, dst));
             return ret;
         }
-        _ => panic!("not yet implemented!"),
+        _ => unimplemented!(),
     }
 }
 

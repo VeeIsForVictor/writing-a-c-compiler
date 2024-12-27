@@ -32,6 +32,7 @@ fn generate_instruction(instruction: TInstructionNode) -> Vec<AInstructionNode> 
                 AInstructionNode::Unary(generate_operator(op), generate_operand(dst)),
             ]
         }
+        _ => unimplemented!(),
     };
 }
 

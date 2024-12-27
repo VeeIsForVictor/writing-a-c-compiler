@@ -1,4 +1,4 @@
-use super::ast_tree::UnaryOperatorNode;
+use super::ast_tree::{BinaryOperatorNode, UnaryOperatorNode};
 
 #[derive(Debug, Clone)]
 pub enum TValNode {
@@ -10,6 +10,7 @@ pub enum TValNode {
 pub enum TInstructionNode {
     Return(TValNode),
     Unary(UnaryOperatorNode, TValNode, TValNode),
+    Binary(BinaryOperatorNode, TValNode, TValNode, TValNode),
 }
 
 #[derive(Debug)]
