@@ -1,11 +1,11 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum CommentToken {
     LineComment,
     BlockComment,
     PendingComment,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum SymbolToken {
     OpenParen,
     CloseParen,
@@ -47,14 +47,14 @@ impl TryFrom<char> for SymbolToken {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum KeywordToken {
     Int,
     Void,
     Return,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Token {
     Identifier(String),
     Constant(String),

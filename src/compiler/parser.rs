@@ -7,10 +7,12 @@ fn parse_factor<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ExpressionN
     // match <int>
     let first = tokens.next().unwrap().to_owned();
     if let Token::Constant(val) = first {
-        return ExpressionNode::Constant(str::parse(val).expect("Could not parse constant as int"));
+        return ExpressionNode::Constant(
+            str::parse(&val).expect("Could not parse constant as int"),
+        );
     } else if let Token::Symbol(operator) = first {
         if let SymbolToken::OpenParen = operator {
-            let inner = parse_factor(tokens);
+            let inner = parse_expression(tokens);
             assert!(matches!(
                 tokens.next().unwrap(),
                 Token::Symbol(SymbolToken::CloseParen)
@@ -30,6 +32,32 @@ fn parse_factor<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ExpressionN
     } else {
         panic!("Syntax error!");
     }
+}
+
+fn parse_expression<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ExpressionNode {
+    let mut left = parse_factor(tokens);
+    let mut tokens = tokens.peekable();
+    loop {
+        let next = tokens.peek().unwrap();
+        if let Token::Symbol(sym) = next {
+            use SymbolToken::*;
+            match sym {
+                Plus | Minus | Asterisk | ForwardSlash => {
+                    let operator = match tokens.next().unwrap() {
+                        Token::Symbol(SymbolToken::Plus) => BinaryOperatorNode::Add,
+                        Token::Symbol(SymbolToken::Minus) => BinaryOperatorNode::Subtract,
+                        Token::Symbol(SymbolToken::Asterisk) => BinaryOperatorNode::Multiply,
+                        Token::Symbol(SymbolToken::ForwardSlash) => BinaryOperatorNode::Divide,
+                        _ => panic!("unrecognized symbol used as operator in binop"),
+                    };
+                    let right = parse_factor(&mut tokens);
+                    left = ExpressionNode::Binary(operator, Box::new(left), Box::new(right));
+                }
+                _ => break,
+            }
+        }
+    }
+    return left;
 }
 
 fn parse_statement<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> StatementNode {
