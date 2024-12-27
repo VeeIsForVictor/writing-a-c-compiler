@@ -65,8 +65,8 @@ impl Display for AInstructionNode {
             AInstructionNode::Unary(operator, operand) => write!(f, "{operator}\t{operand}"),
             AInstructionNode::AllocateStack(size) => write!(f, "subq\t$({size}), %rsp"),
             AInstructionNode::Ret => {
-                write!(f, "movq %rbp, %rsp\n")?;
-                write!(f, "\tpopq %rbp\n")?;
+                write!(f, "movq\t%rbp, %rsp\n")?;
+                write!(f, "\tpopq\t%rbp\n")?;
                 write!(f, "\tret")
             }
         }?;
