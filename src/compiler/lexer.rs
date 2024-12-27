@@ -101,7 +101,10 @@ fn consume<'a>(chars: Chars, mut vec: Vec<Token>) -> Vec<Token> {
                                 comment_value: CommentToken::BlockComment,
                             }
                         } else {
-                            panic!("Impossible comment value");
+                            Done {
+                                remaining_chars,
+                                token: Token::Symbol(SymbolToken::ForwardSlash),
+                            }
                         }
                     }
                     None => {
