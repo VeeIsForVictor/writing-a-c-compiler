@@ -3,14 +3,14 @@ use tracing::error;
 use super::ast_tree::*;
 use super::tokens::{KeywordToken, SymbolToken, Token};
 
-fn parse_expression<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ExpressionNode {
+fn parse_factor<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> ExpressionNode {
     // match <int>
     let first = tokens.next().unwrap().to_owned();
     if let Token::Constant(val) = first {
         return ExpressionNode::Constant(str::parse(val).expect("Could not parse constant as int"));
     } else if let Token::Symbol(operator) = first {
         if let SymbolToken::OpenParen = operator {
-            let inner = parse_expression(tokens);
+            let inner = parse_factor(tokens);
             assert!(matches!(
                 tokens.next().unwrap(),
                 Token::Symbol(SymbolToken::CloseParen)
@@ -25,7 +25,7 @@ fn parse_expression<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> Express
                     panic!("Syntax error!");
                 }
             };
-            return ExpressionNode::Unary(operation, Box::new(parse_expression(tokens)));
+            return ExpressionNode::Unary(operation, Box::new(parse_factor(tokens)));
         }
     } else {
         panic!("Syntax error!");
@@ -40,7 +40,7 @@ fn parse_statement<'a>(tokens: &mut impl Iterator<Item = &'a Token>) -> Statemen
     ));
 
     // match <expression>
-    let expression = parse_expression(tokens);
+    let expression = parse_factor(tokens);
 
     // match ";"
     assert!(matches!(
