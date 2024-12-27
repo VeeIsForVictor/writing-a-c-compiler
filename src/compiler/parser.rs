@@ -14,7 +14,7 @@ fn parse_factor<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> E
         );
     } else if let Token::Symbol(operator) = first {
         if let SymbolToken::OpenParen = operator {
-            let inner = parse_expression(tokens);
+            let inner = parse_expression(tokens, 0);
             assert!(matches!(
                 tokens.next().unwrap(),
                 Token::Symbol(SymbolToken::CloseParen)
@@ -36,22 +36,42 @@ fn parse_factor<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> E
     }
 }
 
-fn parse_expression<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> ExpressionNode {
+fn operator_precedence(operator: &SymbolToken) -> isize {
+    match operator {
+        SymbolToken::Plus => 45,
+        SymbolToken::Minus => 45,
+        SymbolToken::Asterisk => 50,
+        SymbolToken::ForwardSlash => 50,
+        SymbolToken::Percent => 50,
+        _ => panic!("finding precedence for unrecognized operator!"),
+    }
+}
+
+fn parse_expression<'a>(
+    tokens: &mut Peekable<impl Iterator<Item = &'a Token>>,
+    min_precedence: isize,
+) -> ExpressionNode {
     let mut left = parse_factor(tokens);
     loop {
         let next = tokens.peek().unwrap();
         if let Token::Symbol(sym) = next {
             use SymbolToken::*;
             match sym {
-                Plus | Minus | Asterisk | ForwardSlash => {
+                Plus | Minus | Asterisk | ForwardSlash | Percent => {
+                    let precedence = operator_precedence(sym);
+                    if precedence < min_precedence {
+                        break;
+                    }
                     let operator = match tokens.next().unwrap() {
                         Token::Symbol(SymbolToken::Plus) => BinaryOperatorNode::Add,
                         Token::Symbol(SymbolToken::Minus) => BinaryOperatorNode::Subtract,
                         Token::Symbol(SymbolToken::Asterisk) => BinaryOperatorNode::Multiply,
                         Token::Symbol(SymbolToken::ForwardSlash) => BinaryOperatorNode::Divide,
+                        Token::Symbol(SymbolToken::Percent) => BinaryOperatorNode::Remainder,
                         _ => panic!("unrecognized symbol used as operator in binop"),
                     };
-                    let right = parse_factor(tokens);
+
+                    let right = parse_expression(tokens, precedence + 1);
                     left = ExpressionNode::Binary(operator, Box::new(left), Box::new(right));
                 }
                 _ => break,
@@ -69,7 +89,7 @@ fn parse_statement<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -
     ));
 
     // match <expression>
-    let expression = parse_expression(tokens);
+    let expression = parse_expression(tokens, 0);
 
     // match ";"
     assert!(matches!(
