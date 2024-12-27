@@ -69,7 +69,7 @@ fn parse_statement<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -
     ));
 
     // match <expression>
-    let expression = parse_factor(tokens);
+    let expression = parse_expression(tokens);
 
     // match ";"
     assert!(matches!(
