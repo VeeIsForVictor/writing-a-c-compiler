@@ -1,4 +1,4 @@
-use std::fmt::{self, Display};
+use std::fmt::{self, Display, Error};
 
 #[derive(Debug, Clone)]
 pub enum ARegisterNode {
@@ -21,6 +21,17 @@ pub enum AOperandNode {
     Reg(ARegisterNode),
     Pseudo(String),
     Stack(isize),
+}
+
+impl Display for AOperandNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AOperandNode::Imm(c) => write!(f, "${c}"),
+            AOperandNode::Reg(reg) => write!(f, "%{reg}"),
+            AOperandNode::Stack(addr) => write!(f, "{addr}(%rbp)"),
+            _ => Err(Error),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
