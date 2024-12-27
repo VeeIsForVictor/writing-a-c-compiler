@@ -40,6 +40,15 @@ pub enum AUnaryOperatorNode {
     Not,
 }
 
+impl Display for AUnaryOperatorNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AUnaryOperatorNode::Neg => write!(f, "negl"),
+            AUnaryOperatorNode::Not => write!(f, "notl"),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum AInstructionNode {
     Mov(AOperandNode, AOperandNode),
