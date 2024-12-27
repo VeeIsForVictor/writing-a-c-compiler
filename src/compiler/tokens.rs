@@ -15,7 +15,11 @@ pub enum SymbolToken {
     Quote,
     Whitespace,
     CommentSymbol,
+    Plus,
     Minus,
+    Asterisk,
+    ForwardSlash,
+    Percent,
     Decrement,
     Tilde,
 }
