@@ -3,7 +3,9 @@ use std::fmt::{self, Display, Error};
 #[derive(Debug, Clone)]
 pub enum ARegisterNode {
     AX,
+    DX,
     R10,
+    R11,
 }
 
 impl Display for ARegisterNode {
@@ -11,6 +13,7 @@ impl Display for ARegisterNode {
         match self {
             ARegisterNode::AX => write!(f, "eax"),
             ARegisterNode::R10 => write!(f, "r10d"),
+            _ => todo!(),
         }
     }
 }
@@ -50,9 +53,19 @@ impl Display for AUnaryOperatorNode {
 }
 
 #[derive(Debug, Clone)]
+pub enum ABinaryOperatorNode {
+    Add,
+    Sub,
+    Mult,
+}
+
+#[derive(Debug, Clone)]
 pub enum AInstructionNode {
     Mov(AOperandNode, AOperandNode),
     Unary(AUnaryOperatorNode, AOperandNode),
+    Binary(ABinaryOperatorNode, AOperandNode, AOperandNode),
+    Idiv(AOperandNode),
+    Cdq,
     AllocateStack(usize),
     Ret,
 }
@@ -69,6 +82,7 @@ impl Display for AInstructionNode {
                 write!(f, "\tpopq\t%rbp\n")?;
                 write!(f, "\tret")
             }
+            _ => todo!(),
         }?;
         write!(f, "\n")
     }

@@ -37,6 +37,15 @@ fn tack_exp(
             instruction_buffer.push(TInstructionNode::Unary(operator, src, dst));
             return ret;
         }
+        ExpressionNode::Binary(operator, op1, op2) => {
+            let v1 = tack_exp(*op1, instruction_buffer);
+            let v2 = tack_exp(*op2, instruction_buffer);
+            let dst_name = make_temporary_var();
+            let dst = TValNode::Var(dst_name);
+            let ret = dst.clone();
+            instruction_buffer.push(TInstructionNode::Binary(operator, v1, v2, dst));
+            return ret;
+        }
         _ => unimplemented!(),
     }
 }
