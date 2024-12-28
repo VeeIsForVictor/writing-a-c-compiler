@@ -1,13 +1,22 @@
 use super::{
     asm_tree::*,
-    ast_tree::UnaryOperatorNode,
+    ast_tree::{BinaryOperatorNode, UnaryOperatorNode},
     tac_tree::{TFunctionDefinitionNode, TInstructionNode, TProgramNode, TValNode},
 };
 
-fn generate_operator(operator: UnaryOperatorNode) -> AUnaryOperatorNode {
+fn generate_unary_operator(operator: UnaryOperatorNode) -> AUnaryOperatorNode {
     return match operator {
         UnaryOperatorNode::Complement => AUnaryOperatorNode::Not,
         UnaryOperatorNode::Negate => AUnaryOperatorNode::Neg,
+    };
+}
+
+fn generate_binary_operator(operator: &BinaryOperatorNode) -> Option<ABinaryOperatorNode> {
+    return match operator {
+        BinaryOperatorNode::Add => Some(ABinaryOperatorNode::Add),
+        BinaryOperatorNode::Subtract => Some(ABinaryOperatorNode::Sub),
+        BinaryOperatorNode::Multiply => Some(ABinaryOperatorNode::Mult),
+        _ => None,
     };
 }
 
@@ -29,8 +38,31 @@ fn generate_instruction(instruction: TInstructionNode) -> Vec<AInstructionNode> 
         TInstructionNode::Unary(op, src, dst) => {
             vec![
                 AInstructionNode::Mov(generate_operand(src), generate_operand(dst.clone())),
-                AInstructionNode::Unary(generate_operator(op), generate_operand(dst)),
+                AInstructionNode::Unary(generate_unary_operator(op), generate_operand(dst)),
             ]
+        }
+        TInstructionNode::Binary(op, src1, src2, dst) => {
+            if let Some(op) = generate_binary_operator(&op) {
+                vec![
+                    AInstructionNode::Mov(generate_operand(src1), generate_operand(dst.clone())),
+                    AInstructionNode::Binary(op, generate_operand(src2), generate_operand(dst)),
+                ]
+            } else {
+                let result = match op {
+                    BinaryOperatorNode::Divide => ARegisterNode::AX,
+                    BinaryOperatorNode::Remainder => ARegisterNode::DX,
+                    _ => panic!("impossible value for binary operator conversion"),
+                };
+                vec![
+                    AInstructionNode::Mov(
+                        generate_operand(src1),
+                        AOperandNode::Reg(ARegisterNode::AX),
+                    ),
+                    AInstructionNode::Cdq,
+                    AInstructionNode::Idiv(generate_operand(src2)),
+                    AInstructionNode::Mov(AOperandNode::Reg(result), generate_operand(dst)),
+                ]
+            }
         }
         _ => unimplemented!(),
     };
