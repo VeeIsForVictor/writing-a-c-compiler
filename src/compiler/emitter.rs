@@ -8,8 +8,8 @@ pub fn emit_program(a_program: AProgramNode, output: &mut String) {
 }
 
 fn emit_prologue(output: &mut String) {
-    output.push_str(&format!("    pushq %rbp\n"));
-    output.push_str(&format!("    movq %rsp, %rbp\n"));
+    output.push_str(&format!("    pushq\t%rbp\n"));
+    output.push_str(&format!("    movq\t%rsp, %rbp\n"));
 }
 
 fn emit_function(a_function: AFunctionDefinitionNode, output: &mut String) {
