@@ -120,6 +120,11 @@ fn replace_instruction_pseudoregs(
             operator.clone(),
             pseudoreg_to_stack(operand, max_allocation),
         ),
+        AInstructionNode::Binary(operator, operand1, operand2) => AInstructionNode::Binary(
+            operator.clone(),
+            pseudoreg_to_stack(operand1, max_allocation),
+            pseudoreg_to_stack(operand2, max_allocation),
+        ),
         _ => instruction.clone(),
     };
 }
