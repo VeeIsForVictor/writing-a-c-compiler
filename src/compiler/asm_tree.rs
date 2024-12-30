@@ -12,7 +12,9 @@ impl Display for ARegisterNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ARegisterNode::AX => write!(f, "eax"),
+            ARegisterNode::DX => write!(f, "edx"),
             ARegisterNode::R10 => write!(f, "r10d"),
+            ARegisterNode::R11 => write!(f, "r11d"),
             _ => todo!(),
         }
     }
@@ -59,6 +61,16 @@ pub enum ABinaryOperatorNode {
     Mult,
 }
 
+impl Display for ABinaryOperatorNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ABinaryOperatorNode::Add => write!(f, "addl"),
+            ABinaryOperatorNode::Sub => write!(f, "subl"),
+            ABinaryOperatorNode::Mult => write!(f, "imull"),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum AInstructionNode {
     Mov(AOperandNode, AOperandNode),
@@ -82,6 +94,9 @@ impl Display for AInstructionNode {
                 write!(f, "\tpopq\t%rbp\n")?;
                 write!(f, "\tret")
             }
+            AInstructionNode::Binary(operator, src, dst) => write!(f, "{operator}\t{src}, {dst}"),
+            AInstructionNode::Idiv(operand) => write!(f, "idivl\t{operand}"),
+            AInstructionNode::Cdq => write!(f, "cdq"),
             _ => todo!(),
         }?;
         write!(f, "\n")
