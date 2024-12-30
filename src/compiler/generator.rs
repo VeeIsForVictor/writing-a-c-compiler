@@ -125,6 +125,9 @@ fn replace_instruction_pseudoregs(
             pseudoreg_to_stack(operand1, max_allocation),
             pseudoreg_to_stack(operand2, max_allocation),
         ),
+        AInstructionNode::Idiv(operand) => {
+            AInstructionNode::Idiv(pseudoreg_to_stack(operand, max_allocation))
+        }
         _ => instruction.clone(),
     };
 }
