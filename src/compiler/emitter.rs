@@ -22,6 +22,7 @@ fn emit_function(a_function: AFunctionDefinitionNode, output: &mut String) {
     }
 }
 
+#[tracing::instrument(skip(output), level = "debug")]
 fn emit_instructions(a_instruction: AInstructionNode, output: &mut String) {
     output.push_str(&format!("{a_instruction}"));
 }
