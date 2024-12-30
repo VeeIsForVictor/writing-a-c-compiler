@@ -15,7 +15,6 @@ impl Display for ARegisterNode {
             ARegisterNode::DX => write!(f, "edx"),
             ARegisterNode::R10 => write!(f, "r10d"),
             ARegisterNode::R11 => write!(f, "r11d"),
-            _ => todo!(),
         }
     }
 }
@@ -97,7 +96,6 @@ impl Display for AInstructionNode {
             AInstructionNode::Binary(operator, src, dst) => write!(f, "{operator}\t{src}, {dst}"),
             AInstructionNode::Idiv(operand) => write!(f, "idivl\t{operand}"),
             AInstructionNode::Cdq => write!(f, "cdq"),
-            _ => todo!(),
         }?;
         write!(f, "\n")
     }
