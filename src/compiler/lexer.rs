@@ -105,10 +105,10 @@ impl<'a> Tokenizer<'a> {
             Ok(self.handle_identifier())
         } else if self.check_for_regex_at_start(CONSTANT_PATTERN.as_str()) {
             Ok(self.handle_constant())
-        } else if self.check_for_regex_at_start(SYMBOL_PATTERN.as_str()) {
-            Ok(self.handle_symbol())
         } else if self.check_for_regex_at_start(COMMENT_PATTERN.as_str()) {
             Ok(self.handle_comment())
+        } else if self.check_for_regex_at_start(SYMBOL_PATTERN.as_str()) {
+            Ok(self.handle_symbol())
         } else {
             Err("no more tokens left to parse in non-empty remaining_chars")
         }
@@ -135,7 +135,16 @@ impl<'a> Tokenizer<'a> {
     }
 }
 
+fn postprocess_tokens(tokens: Vec<Token>) -> Vec<Token> {
+    return tokens
+        .into_iter()
+        .filter(|token| !matches!(token, Token::Symbol(SymbolToken::Whitespace)))
+        .filter(|token| !matches!(token, Token::Comment(_)))
+        .collect();
+}
+
 #[tracing::instrument]
 pub fn lex(code: String) -> Vec<Token> {
-    return Tokenizer::new(&code).tokenize();
+    let tokens = Tokenizer::new(&code).tokenize();
+    return postprocess_tokens(tokens);
 }
