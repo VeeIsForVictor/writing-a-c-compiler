@@ -5,6 +5,19 @@ pub enum CommentToken {
     PendingComment,
 }
 
+impl TryFrom<&str> for CommentToken {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        use CommentToken::*;
+        match value {
+            "//" => Ok(LineComment),
+            "/*" => Ok(BlockComment),
+            _ => Err("coercion from char to SymbolToken failed"),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum SymbolToken {
     OpenParen,
