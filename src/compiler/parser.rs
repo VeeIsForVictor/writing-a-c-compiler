@@ -43,6 +43,14 @@ fn operator_precedence(operator: &SymbolToken) -> isize {
         SymbolToken::Asterisk => 50,
         SymbolToken::ForwardSlash => 50,
         SymbolToken::Percent => 50,
+        SymbolToken::LeftAngleBracket => 35,
+        SymbolToken::LeftABEqual => 35,
+        SymbolToken::RightAngleBracket => 35,
+        SymbolToken::RightABEqual => 35,
+        SymbolToken::DoubleEqual => 30,
+        SymbolToken::ExclamationEqual => 30,
+        SymbolToken::DoubleAmpersand => 10,
+        SymbolToken::DoubleBar => 5,
         _ => panic!("finding precedence for unrecognized operator!"),
     }
 }
@@ -68,6 +76,22 @@ fn parse_expression<'a>(
                         Token::Symbol(SymbolToken::Asterisk) => BinaryOperatorNode::Multiply,
                         Token::Symbol(SymbolToken::ForwardSlash) => BinaryOperatorNode::Divide,
                         Token::Symbol(SymbolToken::Percent) => BinaryOperatorNode::Remainder,
+                        Token::Symbol(SymbolToken::DoubleAmpersand) => BinaryOperatorNode::And,
+                        Token::Symbol(SymbolToken::DoubleBar) => BinaryOperatorNode::Or,
+                        Token::Symbol(SymbolToken::DoubleEqual) => BinaryOperatorNode::Equal,
+                        Token::Symbol(SymbolToken::ExclamationEqual) => {
+                            BinaryOperatorNode::NotEqual
+                        }
+                        Token::Symbol(SymbolToken::LeftAngleBracket) => {
+                            BinaryOperatorNode::LessThan
+                        }
+                        Token::Symbol(SymbolToken::LeftABEqual) => BinaryOperatorNode::LessOrEqual,
+                        Token::Symbol(SymbolToken::RightAngleBracket) => {
+                            BinaryOperatorNode::GreaterThan
+                        }
+                        Token::Symbol(SymbolToken::RightABEqual) => {
+                            BinaryOperatorNode::GreaterOrEqual
+                        }
                         _ => panic!("unrecognized symbol used as operator in binop"),
                     };
 
