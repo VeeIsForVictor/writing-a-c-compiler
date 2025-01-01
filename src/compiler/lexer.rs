@@ -1,6 +1,6 @@
-use regex::{Matches, Regex};
+use regex::Regex;
 use std::fmt::Debug;
-use tracing::{debug, info};
+use tracing::info;
 
 use super::tokens::*;
 
@@ -19,7 +19,7 @@ impl<'a> Tokenizer<'a> {
     }
 
     fn handle_identifier(&mut self) -> (usize, Token) {
-        let mut matches = IDENTIFIER_PATTERN.find(self.remaining_chars);
+        let matches = IDENTIFIER_PATTERN.find(self.remaining_chars);
         if let Some(identifier) = matches {
             (
                 identifier.len(),
@@ -54,11 +54,9 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    #[tracing::instrument]
     fn handle_symbol(&mut self) -> (usize, Token) {
         let matches = SYMBOL_PATTERN.find(self.remaining_chars);
         if let Some(sym) = matches {
-            info!("{:?}", sym);
             (
                 sym.len(),
                 Token::Symbol(SymbolToken::try_from(sym.as_str()).unwrap()),
@@ -99,7 +97,7 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    #[tracing::instrument]
+    #[tracing::instrument(skip_all)]
     fn next_token(&mut self) -> Result<(usize, Token), &str> {
         if self.check_for_regex_at_start(IDENTIFIER_PATTERN.as_str()) {
             Ok(self.handle_identifier())
