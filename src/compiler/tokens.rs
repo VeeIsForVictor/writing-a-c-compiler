@@ -23,25 +23,26 @@ pub enum SymbolToken {
     Tilde,
 }
 
-impl TryFrom<char> for SymbolToken {
+impl TryFrom<&str> for SymbolToken {
     type Error = &'static str;
 
-    fn try_from(value: char) -> Result<Self, Self::Error> {
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
         use SymbolToken::*;
         match value {
-            '(' => Ok(OpenParen),
-            ')' => Ok(CloseParen),
-            '{' => Ok(OpenBrace),
-            '}' => Ok(CloseBrace),
-            ';' => Ok(Semicolon),
-            '\"' => Ok(Quote),
-            '\n' | ' ' | '\t' => Ok(Whitespace),
-            '+' => Ok(Plus),
-            '-' => Ok(Minus),
-            '*' => Ok(Asterisk),
-            '/' => Ok(ForwardSlash),
-            '%' => Ok(Percent),
-            '~' => Ok(Tilde),
+            "(" => Ok(OpenParen),
+            ")" => Ok(CloseParen),
+            "{" => Ok(OpenBrace),
+            "}" => Ok(CloseBrace),
+            ";" => Ok(Semicolon),
+            "\"" => Ok(Quote),
+            "\n" | " " | "\t" => Ok(Whitespace),
+            "+" => Ok(Plus),
+            "-" => Ok(Minus),
+            "*" => Ok(Asterisk),
+            "/" => Ok(ForwardSlash),
+            "%" => Ok(Percent),
+            "--" => Ok(Decrement),
+            "~" => Ok(Tilde),
             _ => Err("coercion from char to SymbolToken failed"),
         }
     }
