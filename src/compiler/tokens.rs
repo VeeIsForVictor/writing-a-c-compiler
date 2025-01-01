@@ -109,6 +109,7 @@ pub enum Token {
     Keyword(KeywordToken),
     Symbol(SymbolToken),
     Comment(CommentToken),
+    Macro(String),
 }
 
 lazy_static! {
@@ -119,4 +120,5 @@ lazy_static! {
         Regex::new(r#"\(|\)|\{|\}|;|\"|\n|\+|-|\*|\/|%|~| |\t|\n|--|!|&&|\|\||==|!=|<|>|<=|>="#)
             .unwrap();
     pub static ref COMMENT_PATTERN: Regex = Regex::new(r"\/\/|\/\*").unwrap();
+    pub static ref MACRO_PATTERN: Regex = Regex::new(r"#\w*").unwrap();
 }
