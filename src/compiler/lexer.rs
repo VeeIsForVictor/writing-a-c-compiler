@@ -1,4 +1,6 @@
+use regex::{Matches, Regex};
 use std::fmt::Debug;
+use tracing::debug;
 
 use super::tokens::*;
 
@@ -84,18 +86,24 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
+    fn check_for_regex_at_start(&mut self, regex: Regex) -> bool {
+        match regex.find(self.remaining_chars) {
+            Some(found) => found.start() == 0,
+            None => false,
+        }
+    }
+
     #[tracing::instrument]
     fn next_token(&mut self) -> Result<(usize, Token), &str> {
-        let remaining_chars = self.remaining_chars;
-        if remaining_chars.starts_with(IDENTIFIER_PATTERN) {
+        if self.check_for_regex_at_start(Regex::new(IDENTIFIER_PATTERN).unwrap()) {
             Ok(self.handle_identifier())
-        } else if remaining_chars.starts_with(CONSTANT_PATTERN) {
+        } else if self.check_for_regex_at_start(Regex::new(KEYWORD_PATTERN).unwrap()) {
             Ok(self.handle_keyword())
-        } else if remaining_chars.starts_with(KEYWORD_PATTERN) {
+        } else if self.check_for_regex_at_start(Regex::new(CONSTANT_PATTERN).unwrap()) {
             Ok(self.handle_keyword())
-        } else if remaining_chars.starts_with(SYMBOL_PATTERN) {
+        } else if self.check_for_regex_at_start(Regex::new(SYMBOL_PATTERN).unwrap()) {
             Ok(self.handle_symbol())
-        } else if remaining_chars.starts_with(COMMENT_PATTERN) {
+        } else if self.check_for_regex_at_start(Regex::new(COMMENT_PATTERN).unwrap()) {
             Ok(self.handle_comment())
         } else {
             Err("no more tokens left to parse in non-empty remaining_chars")
