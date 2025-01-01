@@ -1,6 +1,6 @@
 use std::iter::Peekable;
 
-use tracing::{debug, error};
+use tracing::error;
 
 use super::ast_tree::*;
 use super::tokens::{KeywordToken, SymbolToken, Token};
@@ -120,7 +120,6 @@ fn parse_statement<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -
     let expression = parse_expression(tokens, 0);
 
     // match ";"
-    debug!("{:?}", tokens.peek());
     assert!(matches!(
         tokens.next().unwrap().to_owned(),
         Token::Symbol(SymbolToken::Semicolon)
