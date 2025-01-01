@@ -96,13 +96,15 @@ fn get_executable_name(src_path: &String) -> String {
 #[tracing::instrument]
 fn preprocess(args: &Args) -> Result<String, Error> {
     // preprocess and create the preprocessed file
+    let executable_name = get_executable_name(&args.input_file);
+
     match Command::new("gcc")
         .args([
             "-E",
             "-P",
             &args.input_file,
             "-o",
-            &format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.i"),
+            &format!("{executable_name}.i"),
         ])
         .spawn()
     {
@@ -123,7 +125,9 @@ fn preprocess(args: &Args) -> Result<String, Error> {
 
 #[tracing::instrument(skip_all)]
 fn compile(args: &Args) -> Result<String, Error> {
-    let code = read_to_string(&args.input_file).unwrap();
+    let executable_name = get_executable_name(&args.input_file);
+    let preprocessed_name = format!("{executable_name}.i");
+    let code = read_to_string(preprocessed_name).unwrap();
 
     let tokens = lex(code);
 
