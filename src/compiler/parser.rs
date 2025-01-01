@@ -1,6 +1,6 @@
 use std::iter::Peekable;
 
-use tracing::error;
+use tracing::{debug, error};
 
 use super::ast_tree::*;
 use super::tokens::{KeywordToken, SymbolToken, Token};
@@ -24,6 +24,7 @@ fn parse_factor<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> E
             let operation: UnaryOperatorNode = match operator {
                 SymbolToken::Minus => UnaryOperatorNode::Negate,
                 SymbolToken::Tilde => UnaryOperatorNode::Complement,
+                SymbolToken::Exclamation => UnaryOperatorNode::Not,
                 _ => {
                     error!("unrecognized symbol {:?} used as unary operator", operator);
                     panic!("Syntax error!");
@@ -65,7 +66,9 @@ fn parse_expression<'a>(
         if let Token::Symbol(sym) = next {
             use SymbolToken::*;
             match sym {
-                Plus | Minus | Asterisk | ForwardSlash | Percent => {
+                Plus | Minus | Asterisk | ForwardSlash | Percent | DoubleAmpersand | DoubleBar
+                | DoubleEqual | ExclamationEqual | LeftAngleBracket | LeftABEqual
+                | RightAngleBracket | RightABEqual => {
                     let precedence = operator_precedence(sym);
                     if precedence < min_precedence {
                         break;
@@ -105,6 +108,7 @@ fn parse_expression<'a>(
     return left;
 }
 
+#[tracing::instrument(skip_all)]
 fn parse_statement<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> StatementNode {
     // match "return"
     assert!(matches!(
@@ -116,6 +120,7 @@ fn parse_statement<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -
     let expression = parse_expression(tokens, 0);
 
     // match ";"
+    debug!("{:?}", tokens.peek());
     assert!(matches!(
         tokens.next().unwrap().to_owned(),
         Token::Symbol(SymbolToken::Semicolon)
