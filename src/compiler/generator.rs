@@ -8,6 +8,7 @@ fn generate_unary_operator(operator: UnaryOperatorNode) -> AUnaryOperatorNode {
     return match operator {
         UnaryOperatorNode::Complement => AUnaryOperatorNode::Not,
         UnaryOperatorNode::Negate => AUnaryOperatorNode::Neg,
+        _ => todo!(),
     };
 }
 
