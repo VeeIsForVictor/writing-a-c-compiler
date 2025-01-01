@@ -62,3 +62,9 @@ pub enum Token {
     Symbol(SymbolToken),
     Comment(CommentToken),
 }
+
+pub static IDENTIFIER_PATTERN: &str = r"^[a-zA-Z_]\w*\b$";
+pub static CONSTANT_PATTERN: &str = r"^[0-9]+\b$";
+pub static KEYWORD_PATTERN: &str = r"int|void|return";
+pub static SYMBOL_PATTERN: &str = r#"(|)|{|}|;|\"|\n|+|-|*|/|%|~|\s|--"#;
+pub static COMMENT_PATTERN: &str = r"\/\/|\/\*";
