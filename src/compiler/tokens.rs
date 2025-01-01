@@ -54,6 +54,20 @@ pub enum KeywordToken {
     Return,
 }
 
+impl TryFrom<&str> for KeywordToken {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        use KeywordToken::*;
+        match value {
+            "int" => Ok(Int),
+            "void" => Ok(Void),
+            "return" => Ok(Return),
+            _ => Err("coercion from str to KeywordToken failed"),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum Token {
     Identifier(String),
