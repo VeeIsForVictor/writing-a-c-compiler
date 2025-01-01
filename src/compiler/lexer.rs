@@ -89,6 +89,13 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
+    fn handle_macro(&mut self) -> (usize, Token) {
+        let matches = MACRO_PATTERN.find(self.remaining_chars);
+        let len = matches.unwrap().as_str().len();
+        let macro_type = matches.unwrap().as_str().split("#").next().unwrap();
+        (len, Token::Macro(String::from(macro_type)))
+    }
+
     fn check_for_regex_at_start(&mut self, re: &str) -> bool {
         let regex = Regex::new(re).unwrap();
         match regex.find(self.remaining_chars) {
@@ -109,6 +116,8 @@ impl<'a> Tokenizer<'a> {
             Ok(self.handle_comment())
         } else if self.check_for_regex_at_start(SYMBOL_PATTERN.as_str()) {
             Ok(self.handle_symbol())
+        } else if self.check_for_regex_at_start(MACRO_PATTERN.as_str()) {
+            Ok(self.handle_macro())
         } else {
             Err("no more tokens left to parse in non-empty remaining_chars")
         }
