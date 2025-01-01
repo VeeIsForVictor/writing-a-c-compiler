@@ -1,6 +1,6 @@
 use regex::Regex;
 use std::fmt::Debug;
-use tracing::info;
+use tracing::{error, info};
 
 use super::tokens::*;
 
@@ -119,6 +119,8 @@ impl<'a> Tokenizer<'a> {
         } else if self.check_for_regex_at_start(MACRO_PATTERN.as_str()) {
             Ok(self.handle_macro())
         } else {
+            let remaining_chars = self.remaining_chars;
+            error!("unrecognized token {remaining_chars:?}");
             Err("no more tokens left to parse in non-empty remaining_chars")
         }
     }
