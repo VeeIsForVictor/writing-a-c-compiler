@@ -99,10 +99,10 @@ impl<'a> Tokenizer<'a> {
 
     #[tracing::instrument(skip_all)]
     fn next_token(&mut self) -> Result<(usize, Token), &str> {
-        if self.check_for_regex_at_start(IDENTIFIER_PATTERN.as_str()) {
-            Ok(self.handle_identifier())
-        } else if self.check_for_regex_at_start(KEYWORD_PATTERN.as_str()) {
+        if self.check_for_regex_at_start(KEYWORD_PATTERN.as_str()) {
             Ok(self.handle_keyword())
+        } else if self.check_for_regex_at_start(IDENTIFIER_PATTERN.as_str()) {
+            Ok(self.handle_identifier())
         } else if self.check_for_regex_at_start(CONSTANT_PATTERN.as_str()) {
             Ok(self.handle_constant())
         } else if self.check_for_regex_at_start(SYMBOL_PATTERN.as_str()) {
