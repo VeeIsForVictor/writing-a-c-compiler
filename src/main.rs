@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 use std::{
     fs::{create_dir, read_to_string, remove_dir_all, remove_file, File},
     io::{Error, Write},

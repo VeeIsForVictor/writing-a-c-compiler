@@ -1,3 +1,5 @@
+use regex::Regex;
+
 #[derive(Debug, Clone)]
 pub enum CommentToken {
     LineComment,
@@ -91,8 +93,11 @@ pub enum Token {
     Comment(CommentToken),
 }
 
-pub static IDENTIFIER_PATTERN: &str = r"^[a-zA-Z_]\w*\b$";
-pub static CONSTANT_PATTERN: &str = r"^[0-9]+\b$";
-pub static KEYWORD_PATTERN: &str = r"int|void|return";
-pub static SYMBOL_PATTERN: &str = r#"(|)|{|}|;|\"|\n|+|-|*|/|%|~|\s|--"#;
-pub static COMMENT_PATTERN: &str = r"\/\/|\/\*";
+lazy_static! {
+    pub static ref IDENTIFIER_PATTERN: Regex = Regex::new(r"^[a-zA-Z_]\w*\b$").unwrap();
+    pub static ref CONSTANT_PATTERN: Regex = Regex::new(r"^[0-9]+\b$").unwrap();
+    pub static ref KEYWORD_PATTERN: Regex = Regex::new(r"int|void|return").unwrap();
+    pub static ref SYMBOL_PATTERN: Regex =
+        Regex::new(r#"\(|\)|\{|\}|;|\"|\n|\+|-|\*|\/|%|~| |\t|\n|--"#).unwrap();
+    pub static ref COMMENT_PATTERN: Regex = Regex::new(r"\/\/|\/\*").unwrap();
+}

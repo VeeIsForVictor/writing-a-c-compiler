@@ -1,6 +1,6 @@
 use regex::{Matches, Regex};
 use std::fmt::Debug;
-use tracing::debug;
+use tracing::{debug, info};
 
 use super::tokens::*;
 
@@ -19,11 +19,11 @@ impl<'a> Tokenizer<'a> {
     }
 
     fn handle_identifier(&mut self) -> (usize, Token) {
-        let mut matches = self.remaining_chars.matches(IDENTIFIER_PATTERN);
-        if let Some(identifier) = matches.next() {
+        let mut matches = IDENTIFIER_PATTERN.find(self.remaining_chars);
+        if let Some(identifier) = matches {
             (
                 identifier.len(),
-                Token::Identifier(String::from(identifier)),
+                Token::Identifier(String::from(identifier.as_str())),
             )
         } else {
             panic!("something weird happened while handling identifier")
@@ -31,32 +31,37 @@ impl<'a> Tokenizer<'a> {
     }
 
     fn handle_constant(&mut self) -> (usize, Token) {
-        let mut matches = self.remaining_chars.matches(CONSTANT_PATTERN);
-        if let Some(constant) = matches.next() {
-            (constant.len(), Token::Constant(String::from(constant)))
+        let matches = CONSTANT_PATTERN.find(self.remaining_chars);
+        if let Some(constant) = matches {
+            (
+                constant.len(),
+                Token::Constant(String::from(constant.as_str())),
+            )
         } else {
             panic!("something weird happened while handling constant")
         }
     }
 
     fn handle_keyword(&mut self) -> (usize, Token) {
-        let mut matches = self.remaining_chars.matches(KEYWORD_PATTERN);
-        if let Some(keyword) = matches.next() {
+        let matches = KEYWORD_PATTERN.find(self.remaining_chars);
+        if let Some(keyword) = matches {
             (
                 keyword.len(),
-                Token::Keyword(KeywordToken::try_from(keyword).unwrap()),
+                Token::Keyword(KeywordToken::try_from(keyword.as_str()).unwrap()),
             )
         } else {
             panic!("something weird happened while handling keyword")
         }
     }
 
+    #[tracing::instrument]
     fn handle_symbol(&mut self) -> (usize, Token) {
-        let mut matches = self.remaining_chars.matches(SYMBOL_PATTERN);
-        if let Some(sym) = matches.next() {
+        let matches = SYMBOL_PATTERN.find(self.remaining_chars);
+        if let Some(sym) = matches {
+            info!("{:?}", sym);
             (
                 sym.len(),
-                Token::Symbol(SymbolToken::try_from(sym).unwrap()),
+                Token::Symbol(SymbolToken::try_from(sym.as_str()).unwrap()),
             )
         } else {
             panic!("something weird happened while handling symbol")
@@ -64,10 +69,10 @@ impl<'a> Tokenizer<'a> {
     }
 
     fn handle_comment(&mut self) -> (usize, Token) {
-        let mut matches = self.remaining_chars.matches(COMMENT_PATTERN);
+        let matches = COMMENT_PATTERN.find(self.remaining_chars);
         let mut comment_type = CommentToken::PendingComment;
-        if let Some(comment) = matches.next() {
-            comment_type = CommentToken::try_from(comment).unwrap()
+        if let Some(comment) = matches {
+            comment_type = CommentToken::try_from(comment.as_str()).unwrap()
         } else {
             panic!("something weird happened while handling comment")
         }
@@ -86,7 +91,8 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    fn check_for_regex_at_start(&mut self, regex: Regex) -> bool {
+    fn check_for_regex_at_start(&mut self, re: &str) -> bool {
+        let regex = Regex::new(re).unwrap();
         match regex.find(self.remaining_chars) {
             Some(found) => found.start() == 0,
             None => false,
@@ -95,15 +101,15 @@ impl<'a> Tokenizer<'a> {
 
     #[tracing::instrument]
     fn next_token(&mut self) -> Result<(usize, Token), &str> {
-        if self.check_for_regex_at_start(Regex::new(IDENTIFIER_PATTERN).unwrap()) {
+        if self.check_for_regex_at_start(IDENTIFIER_PATTERN.as_str()) {
             Ok(self.handle_identifier())
-        } else if self.check_for_regex_at_start(Regex::new(KEYWORD_PATTERN).unwrap()) {
+        } else if self.check_for_regex_at_start(KEYWORD_PATTERN.as_str()) {
             Ok(self.handle_keyword())
-        } else if self.check_for_regex_at_start(Regex::new(CONSTANT_PATTERN).unwrap()) {
-            Ok(self.handle_keyword())
-        } else if self.check_for_regex_at_start(Regex::new(SYMBOL_PATTERN).unwrap()) {
+        } else if self.check_for_regex_at_start(CONSTANT_PATTERN.as_str()) {
+            Ok(self.handle_constant())
+        } else if self.check_for_regex_at_start(SYMBOL_PATTERN.as_str()) {
             Ok(self.handle_symbol())
-        } else if self.check_for_regex_at_start(Regex::new(COMMENT_PATTERN).unwrap()) {
+        } else if self.check_for_regex_at_start(COMMENT_PATTERN.as_str()) {
             Ok(self.handle_comment())
         } else {
             Err("no more tokens left to parse in non-empty remaining_chars")
