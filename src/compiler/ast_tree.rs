@@ -2,6 +2,7 @@
 pub enum UnaryOperatorNode {
     Complement,
     Negate,
+    Not,
 }
 
 #[derive(Debug)]
