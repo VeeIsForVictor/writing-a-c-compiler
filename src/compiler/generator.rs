@@ -62,7 +62,11 @@ fn generate_instruction(instruction: TInstructionNode) -> Vec<AInstructionNode> 
         TInstructionNode::Binary(op, src1, src2, dst) => {
             use AInstructionNode::*;
             if let Some(cc) = generate_condition_operator(&op) {
-                vec![]
+                vec![
+                    Cmp(generate_operand(src2), generate_operand(src1)),
+                    Mov(AOperandNode::Imm(0), generate_operand(dst.clone())),
+                    SetCC(cc, generate_operand(dst)),
+                ]
             } else if let Some(op) = generate_binary_operator(&op) {
                 vec![
                     Mov(generate_operand(src1), generate_operand(dst.clone())),
