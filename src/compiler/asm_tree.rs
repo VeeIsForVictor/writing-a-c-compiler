@@ -19,6 +19,15 @@ impl Display for ARegisterNode {
     }
 }
 
+pub enum AConditionCode {
+    E,
+    NE,
+    G,
+    GE,
+    L,
+    LE
+}
+
 #[derive(Debug, Clone)]
 pub enum AOperandNode {
     Imm(usize),
