@@ -36,12 +36,17 @@ fn generate_instruction(instruction: TInstructionNode) -> Vec<AInstructionNode> 
                 AInstructionNode::Ret,
             ]
         }
-        TInstructionNode::Unary(op, src, dst) => {
-            vec![
+        TInstructionNode::Unary(op, src, dst) => match op {
+            UnaryOperatorNode::Not => vec![
+                AInstructionNode::Cmp(AOperandNode::Imm(0), generate_operand(src)),
+                AInstructionNode::Mov(AOperandNode::Imm(0), generate_operand(dst.clone())),
+                AInstructionNode::SetCC(AConditionCode::E, generate_operand(dst)),
+            ],
+            _ => vec![
                 AInstructionNode::Mov(generate_operand(src), generate_operand(dst.clone())),
                 AInstructionNode::Unary(generate_unary_operator(op), generate_operand(dst)),
-            ]
-        }
+            ],
+        },
         TInstructionNode::Binary(op, src1, src2, dst) => {
             if let Some(op) = generate_binary_operator(&op) {
                 vec![
