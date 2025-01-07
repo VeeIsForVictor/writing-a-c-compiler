@@ -21,6 +21,18 @@ fn generate_binary_operator(operator: &BinaryOperatorNode) -> Option<ABinaryOper
     };
 }
 
+fn generate_condition_operator(operator: &BinaryOperatorNode) -> Option<AConditionCode> {
+    return match operator {
+        BinaryOperatorNode::Equal => Some(AConditionCode::E),
+        BinaryOperatorNode::NotEqual => Some(AConditionCode::NE),
+        BinaryOperatorNode::GreaterThan => Some(AConditionCode::G),
+        BinaryOperatorNode::GreaterOrEqual => Some(AConditionCode::GE),
+        BinaryOperatorNode::LessThan => Some(AConditionCode::L),
+        BinaryOperatorNode::LessOrEqual => Some(AConditionCode::LE),
+        _ => None,
+    };
+}
+
 fn generate_operand(operand: TValNode) -> AOperandNode {
     return match operand {
         TValNode::Constant(c) => AOperandNode::Imm(c),
@@ -48,10 +60,13 @@ fn generate_instruction(instruction: TInstructionNode) -> Vec<AInstructionNode> 
             ],
         },
         TInstructionNode::Binary(op, src1, src2, dst) => {
-            if let Some(op) = generate_binary_operator(&op) {
+            use AInstructionNode::*;
+            if let Some(cc) = generate_condition_operator(&op) {
+                vec![]
+            } else if let Some(op) = generate_binary_operator(&op) {
                 vec![
-                    AInstructionNode::Mov(generate_operand(src1), generate_operand(dst.clone())),
-                    AInstructionNode::Binary(op, generate_operand(src2), generate_operand(dst)),
+                    Mov(generate_operand(src1), generate_operand(dst.clone())),
+                    Binary(op, generate_operand(src2), generate_operand(dst)),
                 ]
             } else {
                 let result = match op {
@@ -60,13 +75,10 @@ fn generate_instruction(instruction: TInstructionNode) -> Vec<AInstructionNode> 
                     _ => panic!("impossible value for binary operator conversion"),
                 };
                 vec![
-                    AInstructionNode::Mov(
-                        generate_operand(src1),
-                        AOperandNode::Reg(ARegisterNode::AX),
-                    ),
-                    AInstructionNode::Cdq,
-                    AInstructionNode::Idiv(generate_operand(src2)),
-                    AInstructionNode::Mov(AOperandNode::Reg(result), generate_operand(dst)),
+                    Mov(generate_operand(src1), AOperandNode::Reg(ARegisterNode::AX)),
+                    Cdq,
+                    Idiv(generate_operand(src2)),
+                    Mov(AOperandNode::Reg(result), generate_operand(dst)),
                 ]
             }
         }
