@@ -41,26 +41,26 @@ fn generate_operand(operand: TValNode) -> AOperandNode {
 }
 
 fn generate_instruction(instruction: TInstructionNode) -> Vec<AInstructionNode> {
+    use AInstructionNode::*;
     return match instruction {
         TInstructionNode::Return(val) => {
             vec![
-                AInstructionNode::Mov(generate_operand(val), AOperandNode::Reg(ARegisterNode::AX)),
-                AInstructionNode::Ret,
+                Mov(generate_operand(val), AOperandNode::Reg(ARegisterNode::AX)),
+                Ret,
             ]
         }
         TInstructionNode::Unary(op, src, dst) => match op {
             UnaryOperatorNode::Not => vec![
-                AInstructionNode::Cmp(AOperandNode::Imm(0), generate_operand(src)),
-                AInstructionNode::Mov(AOperandNode::Imm(0), generate_operand(dst.clone())),
-                AInstructionNode::SetCC(AConditionCode::E, generate_operand(dst)),
+                Cmp(AOperandNode::Imm(0), generate_operand(src)),
+                Mov(AOperandNode::Imm(0), generate_operand(dst.clone())),
+                SetCC(AConditionCode::E, generate_operand(dst)),
             ],
             _ => vec![
-                AInstructionNode::Mov(generate_operand(src), generate_operand(dst.clone())),
-                AInstructionNode::Unary(generate_unary_operator(op), generate_operand(dst)),
+                Mov(generate_operand(src), generate_operand(dst.clone())),
+                Unary(generate_unary_operator(op), generate_operand(dst)),
             ],
         },
         TInstructionNode::Binary(op, src1, src2, dst) => {
-            use AInstructionNode::*;
             if let Some(cc) = generate_condition_operator(&op) {
                 vec![
                     Cmp(generate_operand(src2), generate_operand(src1)),
@@ -86,6 +86,10 @@ fn generate_instruction(instruction: TInstructionNode) -> Vec<AInstructionNode> 
                 ]
             }
         }
+        TInstructionNode::Jump(target) => vec![AInstructionNode::Jmp(target)],
+        TInstructionNode::JumpIfZero(condition,  target) => vec![
+            Cmp(AOperandNode::Imm(()))
+        ]
         _ => unimplemented!(),
     };
 }
