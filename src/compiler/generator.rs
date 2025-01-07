@@ -161,6 +161,13 @@ fn replace_instruction_pseudoregs(
         AInstructionNode::Idiv(operand) => {
             AInstructionNode::Idiv(pseudoreg_to_stack(operand, max_allocation))
         }
+        AInstructionNode::Cmp(op1, op2) => AInstructionNode::Cmp(
+            pseudoreg_to_stack(op1, max_allocation),
+            pseudoreg_to_stack(op2, max_allocation),
+        ),
+        AInstructionNode::SetCC(cc, operand) => {
+            AInstructionNode::SetCC(cc.clone(), pseudoreg_to_stack(operand, max_allocation))
+        }
         _ => instruction.clone(),
     };
 }
