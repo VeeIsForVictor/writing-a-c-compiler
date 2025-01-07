@@ -111,6 +111,11 @@ impl Display for AInstructionNode {
             AInstructionNode::Binary(operator, src, dst) => write!(f, "{operator}\t{src}, {dst}"),
             AInstructionNode::Idiv(operand) => write!(f, "idivl\t{operand}"),
             AInstructionNode::Cdq => write!(f, "cdq"),
+            AInstructionNode::Cmp(op1, op2) => write!(f, "cmpl\t{op1}, {op2}"),
+            AInstructionNode::Jmp(target) => write!(f, "j\t.L{target}"),
+            AInstructionNode::JmpCC(cc, target) => write!(f, "j{cc}\t.L{target}"),
+            AInstructionNode::SetCC(cc, operand) => write!(f, "set{cc}\t{operand}"),
+            AInstructionNode::Label(label) => write!(f, "\r   \r.L{label}"),
             _ => unimplemented!(),
         }?;
         write!(f, "\n")
