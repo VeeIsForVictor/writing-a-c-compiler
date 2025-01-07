@@ -19,13 +19,14 @@ impl Display for ARegisterNode {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum AConditionCode {
     E,
     NE,
     G,
     GE,
     L,
-    LE
+    LE,
 }
 
 #[derive(Debug, Clone)]
@@ -84,8 +85,13 @@ pub enum AInstructionNode {
     Mov(AOperandNode, AOperandNode),
     Unary(AUnaryOperatorNode, AOperandNode),
     Binary(ABinaryOperatorNode, AOperandNode, AOperandNode),
+    Cmp(AOperandNode, AOperandNode),
     Idiv(AOperandNode),
     Cdq,
+    Jmp(String),
+    JmpCC(AConditionCode, String),
+    SetCC(AConditionCode, AOperandNode),
+    Label(String),
     AllocateStack(usize),
     Ret,
 }
@@ -105,6 +111,7 @@ impl Display for AInstructionNode {
             AInstructionNode::Binary(operator, src, dst) => write!(f, "{operator}\t{src}, {dst}"),
             AInstructionNode::Idiv(operand) => write!(f, "idivl\t{operand}"),
             AInstructionNode::Cdq => write!(f, "cdq"),
+            _ => unimplemented!(),
         }?;
         write!(f, "\n")
     }
