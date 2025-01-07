@@ -87,9 +87,16 @@ fn generate_instruction(instruction: TInstructionNode) -> Vec<AInstructionNode> 
             }
         }
         TInstructionNode::Jump(target) => vec![AInstructionNode::Jmp(target)],
-        TInstructionNode::JumpIfZero(condition,  target) => vec![
-            Cmp(AOperandNode::Imm(()))
-        ]
+        TInstructionNode::JumpIfZero(condition, target) => vec![
+            Cmp(AOperandNode::Imm(0), generate_operand(condition)),
+            JmpCC(AConditionCode::E, target),
+        ],
+        TInstructionNode::JumpIfNotZero(condition, target) => vec![
+            Cmp(AOperandNode::Imm(0), generate_operand(condition)),
+            JmpCC(AConditionCode::NE, target),
+        ],
+        TInstructionNode::Copy(src, dst) => vec![Mov(generate_operand(src), generate_operand(dst))],
+        TInstructionNode::Label(identifier) => vec![Label(identifier)],
         _ => unimplemented!(),
     };
 }
