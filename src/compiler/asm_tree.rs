@@ -1,4 +1,4 @@
-use std::fmt::{self, Display, Error};
+use std::fmt::{self, write, Display, Error};
 
 #[derive(Debug, Clone)]
 pub enum ARegisterNode {
@@ -27,6 +27,21 @@ pub enum AConditionCode {
     GE,
     L,
     LE,
+}
+
+impl Display for AConditionCode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use AConditionCode::*;
+        let char = match self {
+            E => "e",
+            NE => "ne",
+            G => "g",
+            GE => "ge",
+            L => "l",
+            LE => "le",
+        };
+        write!(f, "{char}")
+    }
 }
 
 #[derive(Debug, Clone)]
