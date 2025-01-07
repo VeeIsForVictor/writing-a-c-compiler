@@ -147,7 +147,7 @@ impl Display for AInstructionNode {
             AInstructionNode::Jmp(target) => write!(f, "j\t.L{target}"),
             AInstructionNode::JmpCC(cc, target) => write!(f, "j{cc}\t.L{target}"),
             AInstructionNode::SetCC(_, _) => setcc_helper(self, f),
-            AInstructionNode::Label(label) => write!(f, "\r   \r.L{label}"),
+            AInstructionNode::Label(label) => write!(f, "\r   \r.L{label}:"),
             _ => unimplemented!(),
         }?;
         write!(f, "\n")
