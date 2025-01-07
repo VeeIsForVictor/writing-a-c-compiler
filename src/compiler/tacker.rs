@@ -25,7 +25,7 @@ fn make_temporary_var() -> String {
 }
 
 #[tracing::instrument]
-fn make_label_name(op: &BinaryOperatorNode) -> String {
+fn make_label_name(op: &BinaryOperatorNode, suffix: &str) -> String {
     debug!("label name creation called");
     let label_name = match op {
         BinaryOperatorNode::And => "false_label",
@@ -37,7 +37,7 @@ fn make_label_name(op: &BinaryOperatorNode) -> String {
             let temp = *counter;
             *counter += 1;
             debug!("label anme {temp} created");
-            format!("{label_name}.{temp}")
+            format!("{label_name}_{temp}{suffix}")
         }
         Err(e) => {
             error!("temporary variable counter mutex was poisoned: {e:?}");
@@ -67,16 +67,42 @@ fn handle_shortcircuiting_operation(
     op2: Box<ExpressionNode>,
     instruction_buffer: &mut Vec<TInstructionNode>,
 ) -> TValNode {
-    let conclude_label = TInstructionNode::Label(make_label_name(&operator));
+    let sclabel_name = make_label_name(&operator, "");
+    let end_label_name = make_label_name(&operator, "_end");
+    let shortcircuit_label = TInstructionNode::Label(sclabel_name.clone());
+    let end_label = TInstructionNode::Label(end_label_name.clone());
     let jump_op = match operator {
         BinaryOperatorNode::And => TInstructionNode::JumpIfZero,
         BinaryOperatorNode::Or => TInstructionNode::JumpIfNotZero,
         _ => unimplemented!(),
     };
     let v1 = tack_exp(*op1, instruction_buffer);
+    instruction_buffer.push(jump_op(v1, sclabel_name.clone()));
     let v2 = tack_exp(*op2, instruction_buffer);
+    instruction_buffer.push(jump_op(v2, sclabel_name));
+    let jump_val = match operator {
+        BinaryOperatorNode::And => 0,
+        BinaryOperatorNode::Or => 1,
+        _ => unimplemented!(),
+    };
+    let no_jump_val = match operator {
+        BinaryOperatorNode::And => 1,
+        BinaryOperatorNode::Or => 0,
+        _ => unimplemented!(),
+    };
     let dst_name = make_temporary_var();
     let dst = TValNode::Var(dst_name);
+    instruction_buffer.push(TInstructionNode::Copy(
+        TValNode::Constant(no_jump_val),
+        dst.clone(),
+    ));
+    instruction_buffer.push(TInstructionNode::Jump(end_label_name.clone()));
+    instruction_buffer.push(shortcircuit_label);
+    instruction_buffer.push(TInstructionNode::Copy(
+        TValNode::Constant(jump_val),
+        dst.clone(),
+    ));
+    instruction_buffer.push(end_label);
     let ret = dst.clone();
     return ret;
 }
