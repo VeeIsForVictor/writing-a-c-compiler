@@ -5,6 +5,7 @@ use tracing::{debug, error};
 use super::{ast_tree::*, tac_tree::*};
 
 static TEMPORARY_COUNTER: Mutex<usize> = Mutex::new(0);
+static LABEL_COUNTER: Mutex<usize> = Mutex::new(0);
 
 #[tracing::instrument]
 fn make_temporary_var() -> String {
@@ -15,6 +16,28 @@ fn make_temporary_var() -> String {
             *counter += 1;
             debug!("temporary variable {temp} created");
             format!("tmp.{temp}")
+        }
+        Err(e) => {
+            error!("temporary variable counter mutex was poisoned: {e:?}");
+            panic!("Concurrency panic!");
+        }
+    }
+}
+
+#[tracing::instrument]
+fn make_label_name(op: &BinaryOperatorNode) -> String {
+    debug!("label name creation called");
+    let label_name = match op {
+        BinaryOperatorNode::And => "false_label",
+        BinaryOperatorNode::Or => "true_label",
+        _ => unimplemented!(),
+    };
+    match LABEL_COUNTER.lock() {
+        Ok(mut counter) => {
+            let temp = *counter;
+            *counter += 1;
+            debug!("label anme {temp} created");
+            format!("{label_name}.{temp}")
         }
         Err(e) => {
             error!("temporary variable counter mutex was poisoned: {e:?}");
@@ -44,16 +67,17 @@ fn handle_shortcircuiting_operation(
     op2: Box<ExpressionNode>,
     instruction_buffer: &mut Vec<TInstructionNode>,
 ) -> TValNode {
+    let conclude_label = TInstructionNode::Label(make_label_name(&operator));
+    let jump_op = match operator {
+        BinaryOperatorNode::And => TInstructionNode::JumpIfZero,
+        BinaryOperatorNode::Or => TInstructionNode::JumpIfNotZero,
+        _ => unimplemented!(),
+    };
     let v1 = tack_exp(*op1, instruction_buffer);
     let v2 = tack_exp(*op2, instruction_buffer);
     let dst_name = make_temporary_var();
     let dst = TValNode::Var(dst_name);
     let ret = dst.clone();
-    let jump_op2 = match operator {
-        BinaryOperatorNode::And => TInstructionNode::JumpIfZero,
-        _ => unimplemented!()
-    }
-    let conclude_label = TInstructionNode::Label()
     return ret;
 }
 
