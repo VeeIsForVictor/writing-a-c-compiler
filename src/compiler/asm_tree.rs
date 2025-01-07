@@ -111,6 +111,23 @@ pub enum AInstructionNode {
     Ret,
 }
 
+fn setcc_helper(instruction: &AInstructionNode, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    if let AInstructionNode::SetCC(cc, operand) = instruction {
+        let op = match operand {
+            AOperandNode::Reg(reg) => match reg {
+                ARegisterNode::AX => "%al",
+                ARegisterNode::DX => "%dl",
+                ARegisterNode::R10 => "%r10b",
+                ARegisterNode::R11 => "%r11b",
+            },
+            _ => &format!("{operand}"),
+        };
+        write!(f, "set{cc}\t{op}")
+    } else {
+        unimplemented!();
+    }
+}
+
 impl Display for AInstructionNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "\t")?;
@@ -129,7 +146,7 @@ impl Display for AInstructionNode {
             AInstructionNode::Cmp(op1, op2) => write!(f, "cmpl\t{op1}, {op2}"),
             AInstructionNode::Jmp(target) => write!(f, "j\t.L{target}"),
             AInstructionNode::JmpCC(cc, target) => write!(f, "j{cc}\t.L{target}"),
-            AInstructionNode::SetCC(cc, operand) => write!(f, "set{cc}\t{operand}"),
+            AInstructionNode::SetCC(_, _) => setcc_helper(self, f),
             AInstructionNode::Label(label) => write!(f, "\r   \r.L{label}"),
             _ => unimplemented!(),
         }?;
