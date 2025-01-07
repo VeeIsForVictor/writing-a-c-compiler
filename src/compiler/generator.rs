@@ -205,6 +205,18 @@ fn replace_invalid_moves(instruction: &AInstructionNode) -> Vec<AInstructionNode
             ],
             _ => vec![instruction.clone()],
         },
+        AInstructionNode::Cmp(Stack(src), Stack(dst)) => {
+            vec![
+                AInstructionNode::Mov(Stack(*src), Reg(ARegisterNode::R10)),
+                AInstructionNode::Cmp(Reg(ARegisterNode::R10), Stack(*dst)),
+            ]
+        }
+        AInstructionNode::Cmp(op1, AOperandNode::Imm(c)) => {
+            vec![
+                AInstructionNode::Mov(AOperandNode::Imm(*c), Reg(ARegisterNode::R11)),
+                AInstructionNode::Cmp(op1.clone(), Reg(ARegisterNode::R11)),
+            ]
+        }
         _ => vec![instruction.clone()],
     };
 }
