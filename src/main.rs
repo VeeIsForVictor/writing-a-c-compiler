@@ -179,7 +179,7 @@ fn compile(args: &Args) -> Result<String, Error> {
     assembly_file.write(buffer.as_bytes())?;
 
     // delete the preprocessed file
-    match remove_file(format!("{TEMPORARY_FILE_DIR}/{TEMPORARY_FILE_NAME}.i")) {
+    match remove_file(format!("{assembly_filename}.i")) {
         Ok(_) => (),
         Err(e) => {
             error!("error in deleting preprocessed file: {e}");
