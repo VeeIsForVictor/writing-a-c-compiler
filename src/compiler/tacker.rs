@@ -23,6 +23,40 @@ fn make_temporary_var() -> String {
     }
 }
 
+fn handle_regular_operation(
+    operator: BinaryOperatorNode,
+    op1: Box<ExpressionNode>,
+    op2: Box<ExpressionNode>,
+    instruction_buffer: &mut Vec<TInstructionNode>,
+) -> TValNode {
+    let v1 = tack_exp(*op1, instruction_buffer);
+    let v2 = tack_exp(*op2, instruction_buffer);
+    let dst_name = make_temporary_var();
+    let dst = TValNode::Var(dst_name);
+    let ret = dst.clone();
+    instruction_buffer.push(TInstructionNode::Binary(operator, v1, v2, dst));
+    return ret;
+}
+
+fn handle_shortcircuiting_operation(
+    operator: BinaryOperatorNode,
+    op1: Box<ExpressionNode>,
+    op2: Box<ExpressionNode>,
+    instruction_buffer: &mut Vec<TInstructionNode>,
+) -> TValNode {
+    let v1 = tack_exp(*op1, instruction_buffer);
+    let v2 = tack_exp(*op2, instruction_buffer);
+    let dst_name = make_temporary_var();
+    let dst = TValNode::Var(dst_name);
+    let ret = dst.clone();
+    let jump_op2 = match operator {
+        BinaryOperatorNode::And => TInstructionNode::JumpIfZero,
+        _ => unimplemented!()
+    }
+    let conclude_label = TInstructionNode::Label()
+    return ret;
+}
+
 fn tack_exp(
     expression: ExpressionNode,
     instruction_buffer: &mut Vec<TInstructionNode>,
@@ -38,13 +72,14 @@ fn tack_exp(
             return ret;
         }
         ExpressionNode::Binary(operator, op1, op2) => {
-            let v1 = tack_exp(*op1, instruction_buffer);
-            let v2 = tack_exp(*op2, instruction_buffer);
-            let dst_name = make_temporary_var();
-            let dst = TValNode::Var(dst_name);
-            let ret = dst.clone();
-            instruction_buffer.push(TInstructionNode::Binary(operator, v1, v2, dst));
-            return ret;
+            use BinaryOperatorNode::*;
+            match operator {
+                Add | Subtract | Multiply | Divide | Remainder | Equal | NotEqual | GreaterThan
+                | GreaterOrEqual | LessThan | LessOrEqual => {
+                    handle_regular_operation(operator, op1, op2, instruction_buffer)
+                }
+                _ => handle_shortcircuiting_operation(operator, op1, op2, instruction_buffer),
+            }
         }
         _ => unimplemented!(),
     }
