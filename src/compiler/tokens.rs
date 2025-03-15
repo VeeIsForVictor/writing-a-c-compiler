@@ -45,6 +45,7 @@ pub enum SymbolToken {
     RightAngleBracket,
     LeftABEqual,
     RightABEqual,
+    Equal,
 }
 
 impl TryFrom<&str> for SymbolToken {
@@ -76,6 +77,7 @@ impl TryFrom<&str> for SymbolToken {
             ">" => Ok(RightAngleBracket),
             "<=" => Ok(LeftABEqual),
             ">=" => Ok(RightABEqual),
+            "=" => Ok(Equal),
             _ => Err("coercion from char to SymbolToken failed"),
         }
     }
@@ -117,7 +119,7 @@ lazy_static! {
     pub static ref CONSTANT_PATTERN: Regex = Regex::new(r"[0-9]+\b").unwrap();
     pub static ref KEYWORD_PATTERN: Regex = Regex::new(r"int|void|return").unwrap();
     pub static ref SYMBOL_PATTERN: Regex =
-        Regex::new(r#"\(|\)|\{|\}|;|\"|\n|\+|--|-|\*|\/|%|~| |\t|\n|!=|!|&&|\|\||==|<=|>=|<|>"#)
+        Regex::new(r#"\(|\)|\{|\}|;|\"|\n|\+|--|-|\*|\/|%|~| |\t|\n|!=|!|&&|\|\||==|<=|>=|<|>|="#)
             .unwrap();
     pub static ref COMMENT_PATTERN: Regex = Regex::new(r"\/\/|\/\*").unwrap();
     pub static ref MACRO_PATTERN: Regex = Regex::new(r"#\w*").unwrap();
