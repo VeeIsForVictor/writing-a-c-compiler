@@ -39,6 +39,11 @@ pub enum StatementNode {
 }
 
 #[derive(Debug)]
+pub enum DeclarationNode {
+    Declaration(String, Option<ExpressionNode>),
+}
+
+#[derive(Debug)]
 pub enum FunctionDefinitionNode {
     Function(String, StatementNode),
 }
