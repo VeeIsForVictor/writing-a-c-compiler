@@ -128,10 +128,28 @@ fn parse_statement<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -
     return StatementNode::Return(expression);
 }
 
+fn parse_block_item<'a>(
+    tokens: &mut Peekable<impl Iterator<Item = &'a Token>>,
+) -> BlockItemNode {
+    let next = tokens.peek().unwrap();
+    match next {
+        Token::Keyword(KeywordToken::Return) => BlockItemNode::StatementItem(parse_statement(tokens)),
+        Token::Keyword(KeywordToken::Int) => todo!("Declaration parsing not implemented yet"),
+        _ => {
+            error!("unexpected token {:?} in block item", next);
+            panic!("syntax error!");
+        }
+    }
+}
+
 fn parse_function_definition<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> Vec<BlockItemNode> {
+    let mut items = vec![];
     
+    while (!matches!(tokens.peek().unwrap().to_owned(), Token::Symbol(SymbolToken::CloseBrace))) {
+        
+    }
     
-    return vec![];
+    return items;
 }
 
 fn parse_function<'a>(
