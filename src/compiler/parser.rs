@@ -128,6 +128,12 @@ fn parse_statement<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -
     return StatementNode::Return(expression);
 }
 
+fn parse_function_definition<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> Vec<BlockItemNode> {
+    
+    
+    return vec![];
+}
+
 fn parse_function<'a>(
     tokens: &mut Peekable<impl Iterator<Item = &'a Token>>,
 ) -> FunctionDefinitionNode {
@@ -166,7 +172,7 @@ fn parse_function<'a>(
     ));
 
     // match <statement>
-    let statement = parse_statement(tokens);
+    let definition = parse_function_definition(tokens);
 
     // match "}"
     assert!(matches!(
@@ -175,7 +181,7 @@ fn parse_function<'a>(
     ));
 
     if let Token::Identifier(name) = name_token {
-        return FunctionDefinitionNode::Function(name.to_owned(), statement);
+        return FunctionDefinitionNode::Function(name.to_owned(), definition);
     } else {
         panic!("Syntax error!");
     }
