@@ -52,6 +52,7 @@ fn operator_precedence(operator: &SymbolToken) -> isize {
         SymbolToken::ExclamationEqual => 30,
         SymbolToken::DoubleAmpersand => 10,
         SymbolToken::DoubleBar => 5,
+        SymbolToken::Equal => 1,
         _ => panic!("finding precedence for unrecognized operator!"),
     }
 }
@@ -65,6 +66,12 @@ fn parse_expression<'a>(
         let next = tokens.peek().unwrap();
         if let Token::Symbol(sym) = next {
             use SymbolToken::*;
+            // handle the case of an assignment operation
+            if (matches!(sym, Equal)) {
+                let right = parse_expression(tokens, operator_precedence(sym) );
+                left = ExpressionNode::Assignment(Box::new(left), Box::new(right));
+                continue;
+            }
             match sym {
                 Plus | Minus | Asterisk | ForwardSlash | Percent | DoubleAmpersand | DoubleBar
                 | DoubleEqual | ExclamationEqual | LeftAngleBracket | LeftABEqual
@@ -160,7 +167,7 @@ fn parse_block_item<'a>(
     let next = tokens.peek().unwrap();
     match next {
         Token::Keyword(KeywordToken::Return) => BlockItemNode::StatementItem(parse_statement(tokens)),
-        Token::Keyword(KeywordToken::Int) => todo!("Declaration parsing not implemented yet"),
+        Token::Keyword(KeywordToken::Int) => BlockItemNode::DeclarationItem(parse_declaration(tokens)),
         _ => {
             error!("unexpected token {:?} in block item", next);
             panic!("syntax error!");
@@ -172,7 +179,7 @@ fn parse_function_definition<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a 
     let mut items = vec![];
     
     while (!matches!(tokens.peek().unwrap().to_owned(), Token::Symbol(SymbolToken::CloseBrace))) {
-        
+        items.push(parse_block_item(tokens));
     }
     
     return items;
