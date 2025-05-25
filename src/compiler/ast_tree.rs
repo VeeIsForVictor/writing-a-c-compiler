@@ -44,8 +44,14 @@ pub enum DeclarationNode {
 }
 
 #[derive(Debug)]
+pub enum BlockItemNode {
+    StatementItem(StatementNode),
+    DeclarationItem(DeclarationNode)
+}
+
+#[derive(Debug)]
 pub enum FunctionDefinitionNode {
-    Function(String, StatementNode),
+    Function(String, Vec<BlockItemNode>),
 }
 
 #[derive(Debug)]
