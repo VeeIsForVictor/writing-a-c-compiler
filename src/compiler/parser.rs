@@ -128,6 +128,32 @@ fn parse_statement<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -
     return StatementNode::Return(expression);
 }
 
+fn parse_declaration<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> DeclarationNode {
+    // match "int"
+    assert!(matches!(
+        tokens.next().unwrap().to_owned(),
+        Token::Keyword(KeywordToken::Int)
+    ));
+
+    // match <identifier>
+    let identifier_token = tokens.next().unwrap().to_owned();
+    assert!(matches!(identifier_token, Token::Identifier(_)));
+
+    let expression = parse_expression(tokens, 0);
+
+    // match ";"
+    assert!(matches!(
+        tokens.next().unwrap().to_owned(),
+        Token::Symbol(SymbolToken::Semicolon)
+    ));
+
+    if let Token::Identifier(name) = identifier_token {
+        return DeclarationNode::Declaration(name.to_owned(), expression);
+    } else {
+        panic!("syntax error!");
+    }
+}
+
 fn parse_block_item<'a>(
     tokens: &mut Peekable<impl Iterator<Item = &'a Token>>,
 ) -> BlockItemNode {
