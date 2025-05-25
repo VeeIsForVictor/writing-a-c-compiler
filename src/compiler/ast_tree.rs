@@ -25,8 +25,10 @@ pub enum BinaryOperatorNode {
 #[derive(Debug)]
 pub enum ExpressionNode {
     Constant(usize),
+    Var(String),
     Unary(UnaryOperatorNode, Box<ExpressionNode>),
     Binary(BinaryOperatorNode, Box<ExpressionNode>, Box<ExpressionNode>),
+    Assignment(Box<ExpressionNode>, Box<ExpressionNode>)
 }
 
 #[derive(Debug)]
