@@ -40,7 +40,7 @@ pub enum StatementNode {
 
 #[derive(Debug)]
 pub enum DeclarationNode {
-    Declaration(String, Option<ExpressionNode>),
+    Declaration(String, ExpressionNode),
 }
 
 #[derive(Debug)]
