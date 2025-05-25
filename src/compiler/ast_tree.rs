@@ -34,6 +34,8 @@ pub enum ExpressionNode {
 #[derive(Debug)]
 pub enum StatementNode {
     Return(ExpressionNode),
+    Expression(ExpressionNode),
+    Null,
 }
 
 #[derive(Debug)]
