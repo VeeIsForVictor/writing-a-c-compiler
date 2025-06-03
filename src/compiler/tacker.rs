@@ -143,9 +143,21 @@ fn tack_instructions(statement: StatementNode) -> Vec<TInstructionNode> {
     return instruction_buffer;
 }
 
+fn tack_block_items(block_items: Vec<BlockItemNode>) -> Vec<TInstructionNode> {
+    let mut nodes = vec![];
+    for block_item in block_items {
+        let mut instruction_nodes: Vec<TInstructionNode> = match block_item {
+            BlockItemNode::DeclarationItem(_) => todo!("implement tacking for block"),
+            BlockItemNode::StatementItem(statement) => tack_instructions(statement),
+        };
+        nodes.append(&mut instruction_nodes);
+    }
+    return nodes;
+}
+
 fn tack_functions(function: FunctionDefinitionNode) -> TFunctionDefinitionNode {
-    let FunctionDefinitionNode::Function(name, statement) = function;
-    return TFunctionDefinitionNode::Function(name, tack_instructions(statement));
+    let FunctionDefinitionNode::Function(name, block_items) = function;
+    return TFunctionDefinitionNode::Function(name, tack_block_items(block_items));
 }
 
 #[tracing::instrument(skip_all)]
