@@ -149,13 +149,20 @@ fn parse_declaration<'a>(
     let identifier_token = tokens.next().unwrap().to_owned();
     assert!(matches!(identifier_token, Token::Identifier(_)));
 
-    let expression = parse_expression(tokens, 0);
+    // match next symbol as ";" or "="
 
-    // match ";"
-    assert!(matches!(
-        tokens.next().unwrap().to_owned(),
-        Token::Symbol(SymbolToken::Semicolon)
-    ));
+    let expression = match tokens.next().unwrap().to_owned() {
+        Token::Symbol(SymbolToken::Semicolon) => None,
+        Token::Symbol(SymbolToken::Equal) => {
+            let ret = Some(parse_expression(tokens, 0)); // match ";"
+            assert!(matches!(
+                tokens.next().unwrap().to_owned(),
+                Token::Symbol(SymbolToken::Semicolon)
+            ));
+            ret
+        }
+        _ => panic!("syntax error!"),
+    };
 
     if let Token::Identifier(name) = identifier_token {
         return DeclarationNode::Declaration(name.to_owned(), expression);

@@ -28,7 +28,7 @@ pub enum ExpressionNode {
     Var(String),
     Unary(UnaryOperatorNode, Box<ExpressionNode>),
     Binary(BinaryOperatorNode, Box<ExpressionNode>, Box<ExpressionNode>),
-    Assignment(Box<ExpressionNode>, Box<ExpressionNode>)
+    Assignment(Box<ExpressionNode>, Box<ExpressionNode>),
 }
 
 #[derive(Debug)]
@@ -40,13 +40,13 @@ pub enum StatementNode {
 
 #[derive(Debug)]
 pub enum DeclarationNode {
-    Declaration(String, ExpressionNode),
+    Declaration(String, Option<ExpressionNode>),
 }
 
 #[derive(Debug)]
 pub enum BlockItemNode {
     StatementItem(StatementNode),
-    DeclarationItem(DeclarationNode)
+    DeclarationItem(DeclarationNode),
 }
 
 #[derive(Debug)]
