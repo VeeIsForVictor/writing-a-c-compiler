@@ -137,9 +137,15 @@ fn tack_exp(
 
 fn tack_instructions(statement: StatementNode) -> Vec<TInstructionNode> {
     let mut instruction_buffer: Vec<TInstructionNode> = vec![];
-    let StatementNode::Return(expression) = statement;
-    let final_return = TInstructionNode::Return(tack_exp(expression, &mut instruction_buffer));
-    instruction_buffer.push(final_return);
+    match statement {
+        StatementNode::Return(expression) => {
+            let final_return =
+                TInstructionNode::Return(tack_exp(expression, &mut instruction_buffer));
+            instruction_buffer.push(final_return);
+        }
+        StatementNode::Expression(_) => todo!("implement tacking for instructions (expression)"),
+        StatementNode::Null => todo!("implement tacking for instructions (null)"),
+    }
     return instruction_buffer;
 }
 
