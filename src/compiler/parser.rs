@@ -126,7 +126,7 @@ fn parse_expression<'a>(
 
 #[tracing::instrument(skip_all)]
 fn parse_statement<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> StatementNode {
-    match tokens.peek().unwrap() {
+    let statement: StatementNode = match tokens.peek().unwrap() {
         Token::Keyword(KeywordToken::Return) => {
             // match "return"
             assert!(matches!(
@@ -137,21 +137,24 @@ fn parse_statement<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -
             // match <expression>
             let expression = parse_expression(tokens, 0);
 
-            // match ";"
-            assert!(matches!(
-                tokens.next().unwrap().to_owned(),
-                Token::Symbol(SymbolToken::Semicolon)
-            ));
-
-            return StatementNode::Return(expression);
+            StatementNode::Return(expression)
         }
         Token::Identifier(_) => {
             let expression = parse_expression(tokens, 0);
 
-            return StatementNode::Expression(expression);
+            StatementNode::Expression(expression)
         }
+        Token::Symbol(SymbolToken::Semicolon) => StatementNode::Null,
         _ => panic!("unexpected token beginning statement"),
-    }
+    };
+
+    // ensure statement is closed properly
+    assert!(matches!(
+        tokens.next().unwrap().to_owned(),
+        Token::Symbol(SymbolToken::Semicolon)
+    ));
+
+    return statement;
 }
 
 #[tracing::instrument(skip_all)]
