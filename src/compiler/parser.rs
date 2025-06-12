@@ -5,6 +5,7 @@ use tracing::error;
 use super::ast_tree::*;
 use super::tokens::{KeywordToken, SymbolToken, Token};
 
+#[tracing::instrument(skip_all)]
 fn parse_factor<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> ExpressionNode {
     // match <int>
     let first = tokens.next().unwrap().to_owned();
@@ -32,7 +33,10 @@ fn parse_factor<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> E
             };
             return ExpressionNode::Unary(operation, Box::new(parse_factor(tokens)));
         }
+    } else if let Token::Identifier(name) = first {
+        return ExpressionNode::Var(name);
     } else {
+        error!("first token {:?} not a valid start", first);
         panic!("Syntax error!");
     }
 }
@@ -57,6 +61,7 @@ fn operator_precedence(operator: &SymbolToken) -> isize {
     }
 }
 
+#[tracing::instrument(skip_all)]
 fn parse_expression<'a>(
     tokens: &mut Peekable<impl Iterator<Item = &'a Token>>,
     min_precedence: isize,
@@ -68,6 +73,8 @@ fn parse_expression<'a>(
             use SymbolToken::*;
             // handle the case of an assignment operation
             if matches!(sym, Equal) {
+                // discard the '=' operator
+                tokens.next();
                 let right = parse_expression(tokens, operator_precedence(sym));
                 left = ExpressionNode::Assignment(Box::new(left), Box::new(right));
                 continue;
@@ -119,22 +126,32 @@ fn parse_expression<'a>(
 
 #[tracing::instrument(skip_all)]
 fn parse_statement<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) -> StatementNode {
-    // match "return"
-    assert!(matches!(
-        tokens.next().unwrap().to_owned(),
-        Token::Keyword(KeywordToken::Return)
-    ));
+    match tokens.peek().unwrap() {
+        Token::Keyword(KeywordToken::Return) => {
+            // match "return"
+            assert!(matches!(
+                tokens.next().unwrap().to_owned(),
+                Token::Keyword(KeywordToken::Return)
+            ));
 
-    // match <expression>
-    let expression = parse_expression(tokens, 0);
+            // match <expression>
+            let expression = parse_expression(tokens, 0);
 
-    // match ";"
-    assert!(matches!(
-        tokens.next().unwrap().to_owned(),
-        Token::Symbol(SymbolToken::Semicolon)
-    ));
+            // match ";"
+            assert!(matches!(
+                tokens.next().unwrap().to_owned(),
+                Token::Symbol(SymbolToken::Semicolon)
+            ));
 
-    return StatementNode::Return(expression);
+            return StatementNode::Return(expression);
+        }
+        Token::Identifier(_) => {
+            let expression = parse_expression(tokens, 0);
+
+            return StatementNode::Expression(expression);
+        }
+        _ => panic!("unexpected token beginning statement"),
+    }
 }
 
 #[tracing::instrument(skip_all)]
@@ -182,6 +199,7 @@ fn parse_block_item<'a>(tokens: &mut Peekable<impl Iterator<Item = &'a Token>>) 
         Token::Keyword(KeywordToken::Int) => {
             BlockItemNode::DeclarationItem(parse_declaration(tokens))
         }
+        Token::Identifier(_) => BlockItemNode::StatementItem(parse_statement(tokens)),
         _ => {
             error!("unexpected token {:?} in block item", next);
             panic!("syntax error!");
