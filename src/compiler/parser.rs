@@ -67,7 +67,7 @@ fn parse_expression<'a>(
         if let Token::Symbol(sym) = next {
             use SymbolToken::*;
             // handle the case of an assignment operation
-            if (matches!(sym, Equal)) {
+            if matches!(sym, Equal) {
                 let right = parse_expression(tokens, operator_precedence(sym));
                 left = ExpressionNode::Assignment(Box::new(left), Box::new(right));
                 continue;
@@ -110,6 +110,8 @@ fn parse_expression<'a>(
                 }
                 _ => break,
             }
+        } else {
+            break;
         }
     }
     return left;
